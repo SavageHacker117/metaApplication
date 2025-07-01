@@ -1,0 +1,11 @@
+{
+  "name": "world_pulse_monitor",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "pulse.py",
+  "description": "Live dashboard of world health, NeRF stats, agent count, latency.",
+  "type": "dashboard",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["get_pulse", "subscribe_metric"],
+  "ui": ["pulse_panel.html", "pulse_panel.js"]
+}

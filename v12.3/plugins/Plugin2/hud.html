@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DARK MATTER - Game HUD</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Courier New', monospace;
+            pointer-events: none;
+        }
+        
+        #hud-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        
+        .hud-panel {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 50, 0, 0.6));
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px;
+            color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+        
+        /* Top HUD */
+        .top-hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        
+        .resource-panel {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .resource-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .resource-icon {
+            width: 24px;
+            height: 24px;
+            background: #00ff00;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #000;
+        }
+        
+        .lives-container {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .heart {
+            width: 20px;
+            height: 20px;
+            background: #ff0000;
+            border-radius: 50%;
+            position: relative;
+            animation: heartbeat 2s infinite;
+        }
+        
+        .heart.lost {
+            background: #440000;
+            animation: none;
+        }
+        
+        .wave-info {
+            text-align: center;
+        }
+        
+        .wave-title {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        
+        .wave-progress {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .countdown-timer {
+            font-size: 2rem;
+            color: #ffff00;
+            text-shadow: 0 0 15px #ffff00;
+            animation: countdown-pulse 1s infinite;
+        }
+        
+        /* Bottom HUD */
+        .bottom-hud {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 20px;
+        }
+        
+        .tower-selection {
+            display: flex;
+            gap: 10px;
+            pointer-events: auto;
+        }
+        
+        .tower-button {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 255, 0, 0.1));
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .tower-button:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.4), rgba(0, 255, 0, 0.2));
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .tower-button.selected {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.6), rgba(0, 255, 0, 0.3));
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+        }
+        
+        .tower-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: rgba(100, 100, 100, 0.1);
+            border-color: #666;
+            color: #666;
+        }
+        
+        .tower-name {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .tower-cost {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .tower-stats {
+            font-size: 0.7rem;
+            margin-top: 3px;
+            opacity: 0.7;
+        }
+        
+        /* Right side panels */
+        .right-panels {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 250px;
+        }
+        
+        .minimap {
+            width: 200px;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .minimap-title {
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-size: 0.8rem;
+            color: #00ff00;
+            z-index: 10;
+        }
+        
+        .minimap-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .enemy-info {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .enemy-info-title {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #00ff00;
+        }
+        
+        .enemy-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            margin: 3px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .enemy-type {
+            color: #ffffff;
+        }
+        
+        .enemy-count {
+            color: #ff4444;
+            font-weight: bold;
+        }
+        
+        /* Performance monitor */
+        .performance-panel {
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+        
+        .performance-item {
+            margin: 2px 0;
+        }
+        
+        /* Game controls */
+        .controls-panel {
+            pointer-events: auto;
+        }
+        
+        .control-button {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 255, 0, 0.1));
+            border: 1px solid #00ff00;
+            border-radius: 6px;
+            padding: 8px 15px;
+            margin: 0 5px;
+            cursor: pointer;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .control-button:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.4), rgba(0, 255, 0, 0.2));
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        /* Notifications */
+        .notification-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        
+        .notification {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ffff00;
+            border-radius: 8px;
+            padding: 15px 25px;
+            color: #ffff00;
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 10px 0;
+            animation: notification-appear 0.5s ease-out;
+        }
+        
+        .notification.warning {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+        
+        .notification.success {
+            border-color: #44ff44;
+            color: #44ff44;
+        }
+        
+        /* Animations */
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes countdown-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+        
+        @keyframes notification-appear {
+            0% { opacity: 0; transform: translateY(-20px) scale(0.8); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .top-hud, .bottom-hud {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .resource-panel {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .tower-selection {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .right-panels {
+                position: relative;
+                max-width: 100%;
+                margin: 20px;
+            }
+            
+            .minimap {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="hud-container">
+        <!-- Top HUD -->
+        <div class="top-hud">
+            <div class="hud-panel resource-panel">
+                <div class="resource-item">
+                    <div class="resource-icon">♥</div>
+                    <span>Lives: <span id="lives-count">20</span></span>
+                    <div class="lives-container" id="lives-hearts"></div>
+                </div>
+                
+                <div class="resource-item">
+                    <div class="resource-icon">$</div>
+                    <span>Gold: <span id="gold-count">100</span></span>
+                </div>
+                
+                <div class="resource-item">
+                    <div class="resource-icon">★</div>
+                    <span>Score: <span id="score-count">0</span></span>
+                </div>
+            </div>
+            
+            <div class="hud-panel wave-info">
+                <div class="wave-title">Level <span id="current-level">1</span></div>
+                <div class="wave-progress">Wave <span id="current-wave">0</span> / <span id="max-waves">10</span></div>
+                <div class="countdown-timer hidden" id="prep-countdown">30</div>
+            </div>
+        </div>
+        
+        <!-- Bottom HUD -->
+        <div class="bottom-hud">
+            <div class="hud-panel tower-selection">
+                <div class="tower-button" id="basic-tower-btn" data-tower="basic">
+                    <div class="tower-name">Basic Tower</div>
+                    <div class="tower-cost">$50</div>
+                    <div class="tower-stats">DMG: 25 | RNG: 8</div>
+                </div>
+                
+                <div class="tower-button" id="sniper-tower-btn" data-tower="sniper">
+                    <div class="tower-name">Sniper Tower</div>
+                    <div class="tower-cost">$100</div>
+                    <div class="tower-stats">DMG: 75 | RNG: 15</div>
+                </div>
+                
+                <div class="tower-button" id="splash-tower-btn" data-tower="splash">
+                    <div class="tower-name">Splash Tower</div>
+                    <div class="tower-cost">$150</div>
+                    <div class="tower-stats">DMG: 40 | AOE: 5</div>
+                </div>
+                
+                <div class="tower-button" id="freeze-tower-btn" data-tower="freeze">
+                    <div class="tower-name">Freeze Tower</div>
+                    <div class="tower-cost">$120</div>
+                    <div class="tower-stats">SLOW: 50% | RNG: 10</div>
+                </div>
+            </div>
+            
+            <div class="hud-panel controls-panel">
+                <button class="control-button" id="pause-btn">Pause</button>
+                <button class="control-button" id="speed-btn">Speed: 1x</button>
+                <button class="control-button" id="menu-btn">Menu</button>
+            </div>
+        </div>
+        
+        <!-- Right side panels -->
+        <div class="right-panels">
+            <div class="hud-panel minimap">
+                <div class="minimap-title">Minimap</div>
+                <canvas class="minimap-canvas" id="minimap-canvas" width="196" height="146"></canvas>
+            </div>
+            
+            <div class="hud-panel enemy-info">
+                <div class="enemy-info-title">Active Enemies</div>
+                <div id="enemy-list">
+                    <div class="enemy-item">
+                        <span class="enemy-type">No enemies</span>
+                        <span class="enemy-count">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hud-panel performance-panel">
+                <div class="performance-item">FPS: <span id="fps-display">60</span></div>
+                <div class="performance-item">Frame: <span id="frame-time">16.7ms</span></div>
+                <div class="performance-item">Triangles: <span id="triangle-count">0</span></div>
+            </div>
+        </div>
+        
+        <!-- Notifications -->
+        <div class="notification-area" id="notification-area"></div>
+    </div>
+    
+    <script>
+        class GameHUD {
+            constructor() {
+                this.isVisible = false;
+                this.selectedTower = null;
+                this.gameSpeed = 1;
+                this.isPaused = false;
+                
+                this.gameData = {
+                    lives: 20,
+                    maxLives: 20,
+                    gold: 100,
+                    score: 0,
+                    level: 1,
+                    wave: 0,
+                    maxWaves: 10,
+                    prepCountdown: 0,
+                    enemies: new Map(),
+                    performance: {
+                        fps: 60,
+                        frameTime: 16.7,
+                        triangles: 0
+                    }
+                };
+                
+                this.towerTypes = {
+                    basic: { name: 'Basic Tower', cost: 50, damage: 25, range: 8 },
+                    sniper: { name: 'Sniper Tower', cost: 100, damage: 75, range: 15 },
+                    splash: { name: 'Splash Tower', cost: 150, damage: 40, aoe: 5 },
+                    freeze: { name: 'Freeze Tower', cost: 120, slow: 0.5, range: 10 }
+                };
+                
+                this.minimapCanvas = null;
+                this.minimapContext = null;
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.setupMinimap();
+                this.updateUI();
+                this.startPerformanceMonitoring();
+            }
+            
+            setupEventListeners() {
+                // Tower selection buttons
+                document.querySelectorAll('.tower-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const towerType = e.currentTarget.dataset.tower;
+                        this.selectTower(towerType);
+                    });
+                });
+                
+                // Control buttons
+                document.getElementById('pause-btn').addEventListener('click', () => {
+                    this.togglePause();
+                });
+                
+                document.getElementById('speed-btn').addEventListener('click', () => {
+                    this.cycleGameSpeed();
+                });
+                
+                document.getElementById('menu-btn').addEventListener('click', () => {
+                    this.showGameMenu();
+                });
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (!this.isVisible) return;
+                    
+                    switch (e.code) {
+                        case 'Space':
+                            e.preventDefault();
+                            this.togglePause();
+                            break;
+                        case 'Digit1':
+                            this.selectTower('basic');
+                            break;
+                        case 'Digit2':
+                            this.selectTower('sniper');
+                            break;
+                        case 'Digit3':
+                            this.selectTower('splash');
+                            break;
+                        case 'Digit4':
+                            this.selectTower('freeze');
+                            break;
+                        case 'Escape':
+                            this.showGameMenu();
+                            break;
+                    }
+                });
+                
+                // Listen for game events
+                window.addEventListener('gameDataUpdated', (e) => {
+                    this.updateGameData(e.detail);
+                });
+                
+                window.addEventListener('enemySpawned', (e) => {
+                    this.addEnemy(e.detail);
+                });
+                
+                window.addEventListener('enemyDestroyed', (e) => {
+                    this.removeEnemy(e.detail);
+                });
+            }
+            
+            setupMinimap() {
+                this.minimapCanvas = document.getElementById('minimap-canvas');
+                this.minimapContext = this.minimapCanvas.getContext('2d');
+                
+                // Start minimap update loop
+                this.updateMinimap();
+            }
+            
+            updateMinimap() {
+                if (!this.isVisible) {
+                    requestAnimationFrame(() => this.updateMinimap());
+                    return;
+                }
+                
+                const ctx = this.minimapContext;
+                const width = this.minimapCanvas.width;
+                const height = this.minimapCanvas.height;
+                
+                // Clear canvas
+                ctx.fillStyle = '#000011';
+                ctx.fillRect(0, 0, width, height);
+                
+                // Draw grid
+                ctx.strokeStyle = '#003300';
+                ctx.lineWidth = 0.5;
+                for (let x = 0; x < width; x += 20) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, height);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < height; y += 15) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+                
+                // Draw path (simulated)
+                ctx.strokeStyle = '#666666';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(10, height / 2);
+                ctx.lineTo(width - 10, height / 2);
+                ctx.stroke();
+                
+                // Draw towers (simulated)
+                ctx.fillStyle = '#00ff00';
+                for (let i = 0; i < 3; i++) {
+                    const x = 30 + i * 50;
+                    const y = height / 2 - 20;
+                    ctx.fillRect(x - 3, y - 3, 6, 6);
+                }
+                
+                // Draw enemies (simulated)
+                ctx.fillStyle = '#ff0000';
+                const enemyCount = this.getTotalEnemyCount();
+                for (let i = 0; i < Math.min(enemyCount, 10); i++) {
+                    const x = 20 + (i * 15) % (width - 40);
+                    const y = height / 2 + Math.sin(performance.now() * 0.01 + i) * 10;
+                    ctx.fillRect(x - 2, y - 2, 4, 4);
+                }
+                
+                requestAnimationFrame(() => this.updateMinimap());
+            }
+            
+            selectTower(towerType) {
+                if (!this.towerTypes[towerType]) return;
+                
+                const tower = this.towerTypes[towerType];
+                if (this.gameData.gold < tower.cost) {
+                    this.showNotification(`Not enough gold! Need $${tower.cost}`, 'warning');
+                    return;
+                }
+                
+                // Update selection
+                document.querySelectorAll('.tower-button').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                
+                const button = document.querySelector(`[data-tower="${towerType}"]`);
+                if (button) {
+                    button.classList.add('selected');
+                }
+                
+                this.selectedTower = towerType;
+                
+                // Notify game of tower selection
+                window.dispatchEvent(new CustomEvent('towerSelected', {
+                    detail: { type: towerType, tower: tower }
+                }));
+                
+                this.showNotification(`${tower.name} selected - Click to place`, 'success');
+            }
+            
+            togglePause() {
+                this.isPaused = !this.isPaused;
+                const pauseBtn = document.getElementById('pause-btn');
+                pauseBtn.textContent = this.isPaused ? 'Resume' : 'Pause';
+                
+                window.dispatchEvent(new CustomEvent('gamePauseToggled', {
+                    detail: { paused: this.isPaused }
+                }));
+                
+                this.showNotification(this.isPaused ? 'Game Paused' : 'Game Resumed');
+            }
+            
+            cycleGameSpeed() {
+                const speeds = [1, 2, 4];
+                const currentIndex = speeds.indexOf(this.gameSpeed);
+                this.gameSpeed = speeds[(currentIndex + 1) % speeds.length];
+                
+                const speedBtn = document.getElementById('speed-btn');
+                speedBtn.textContent = `Speed: ${this.gameSpeed}x`;
+                
+                window.dispatchEvent(new CustomEvent('gameSpeedChanged', {
+                    detail: { speed: this.gameSpeed }
+                }));
+            }
+            
+            showGameMenu() {
+                window.dispatchEvent(new CustomEvent('showGameMenu'));
+            }
+            
+            updateGameData(data) {
+                this.gameData = { ...this.gameData, ...data };
+                this.updateUI();
+            }
+            
+            updateUI() {
+                // Update resource displays
+                document.getElementById('lives-count').textContent = this.gameData.lives;
+                document.getElementById('gold-count').textContent = this.gameData.gold;
+                document.getElementById('score-count').textContent = this.gameData.score.toLocaleString();
+                
+                // Update wave info
+                document.getElementById('current-level').textContent = this.gameData.level;
+                document.getElementById('current-wave').textContent = this.gameData.wave;
+                document.getElementById('max-waves').textContent = this.gameData.maxWaves;
+                
+                // Update hearts display
+                this.updateHeartsDisplay();
+                
+                // Update prep countdown
+                if (this.gameData.prepCountdown > 0) {
+                    document.getElementById('prep-countdown').textContent = this.gameData.prepCountdown;
+                    document.getElementById('prep-countdown').classList.remove('hidden');
+                } else {
+                    document.getElementById('prep-countdown').classList.add('hidden');
+                }
+                
+                // Update tower buttons availability
+                this.updateTowerButtons();
+                
+                // Update enemy list
+                this.updateEnemyList();
+                
+                // Update performance display
+                this.updatePerformanceDisplay();
+            }
+            
+            updateHeartsDisplay() {
+                const heartsContainer = document.getElementById('lives-hearts');
+                heartsContainer.innerHTML = '';
+                
+                for (let i = 0; i < this.gameData.maxLives; i++) {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    if (i >= this.gameData.lives) {
+                        heart.classList.add('lost');
+                    }
+                    heartsContainer.appendChild(heart);
+                }
+            }
+            
+            updateTowerButtons() {
+                Object.keys(this.towerTypes).forEach(type => {
+                    const button = document.querySelector(`[data-tower="${type}"]`);
+                    const tower = this.towerTypes[type];
+                    
+                    if (this.gameData.gold < tower.cost) {
+                        button.disabled = true;
+                        button.style.opacity = '0.5';
+                    } else {
+                        button.disabled = false;
+                        button.style.opacity = '1';
+                    }
+                });
+            }
+            
+            updateEnemyList() {
+                const enemyList = document.getElementById('enemy-list');
+                enemyList.innerHTML = '';
+                
+                if (this.gameData.enemies.size === 0) {
+                    const item = document.createElement('div');
+                    item.className = 'enemy-item';
+                    item.innerHTML = `
+                        <span class="enemy-type">No enemies</span>
+                        <span class="enemy-count">0</span>
+                    `;
+                    enemyList.appendChild(item);
+                } else {
+                    this.gameData.enemies.forEach((count, type) => {
+                        const item = document.createElement('div');
+                        item.className = 'enemy-item';
+                        item.innerHTML = `
+                            <span class="enemy-type">${type}</span>
+                            <span class="enemy-count">${count}</span>
+                        `;
+                        enemyList.appendChild(item);
+                    });
+                }
+            }
+            
+            updatePerformanceDisplay() {
+                document.getElementById('fps-display').textContent = Math.round(this.gameData.performance.fps);
+                document.getElementById('frame-time').textContent = this.gameData.performance.frameTime.toFixed(1) + 'ms';
+                document.getElementById('triangle-count').textContent = this.gameData.performance.triangles.toLocaleString();
+            }
+            
+            addEnemy(enemyData) {
+                const type = enemyData.type || 'Unknown';
+                const current = this.gameData.enemies.get(type) || 0;
+                this.gameData.enemies.set(type, current + 1);
+                this.updateEnemyList();
+            }
+            
+            removeEnemy(enemyData) {
+                const type = enemyData.type || 'Unknown';
+                const current = this.gameData.enemies.get(type) || 0;
+                if (current > 1) {
+                    this.gameData.enemies.set(type, current - 1);
+                } else {
+                    this.gameData.enemies.delete(type);
+                }
+                this.updateEnemyList();
+            }
+            
+            getTotalEnemyCount() {
+                let total = 0;
+                this.gameData.enemies.forEach(count => total += count);
+                return total;
+            }
+            
+            showNotification(message, type = 'info') {
+                const notificationArea = document.getElementById('notification-area');
+                
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                
+                notificationArea.appendChild(notification);
+                
+                // Auto-remove after 3 seconds
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 3000);
+            }
+            
+            startPerformanceMonitoring() {
+                let lastTime = performance.now();
+                let frameCount = 0;
+                
+                const monitor = () => {
+                    const currentTime = performance.now();
+                    const deltaTime = currentTime - lastTime;
+                    
+                    frameCount++;
+                    
+                    if (frameCount >= 60) {
+                        this.gameData.performance.fps = 1000 / (deltaTime / frameCount);
+                        this.gameData.performance.frameTime = deltaTime / frameCount;
+                        frameCount = 0;
+                    }
+                    
+                    lastTime = currentTime;
+                    
+                    if (this.isVisible) {
+                        this.updatePerformanceDisplay();
+                    }
+                    
+                    requestAnimationFrame(monitor);
+                };
+                
+                monitor();
+            }
+            
+            show() {
+                document.getElementById('hud-container').classList.remove('hidden');
+                this.isVisible = true;
+                this.updateUI();
+            }
+            
+            hide() {
+                document.getElementById('hud-container').classList.add('hidden');
+                this.isVisible = false;
+            }
+            
+            getSelectedTower() {
+                return this.selectedTower;
+            }
+            
+            clearTowerSelection() {
+                document.querySelectorAll('.tower-button').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                this.selectedTower = null;
+            }
+        }
+        
+        // Initialize HUD
+        const gameHUD = new GameHUD();
+        
+        // Make it globally accessible
+        window.darkMatterGameHUD = gameHUD;
+        
+        // Example usage - simulate game data updates
+        setInterval(() => {
+            if (gameHUD.isVisible) {
+                // Simulate performance data
+                gameHUD.updateGameData({
+                    performance: {
+                        fps: 58 + Math.random() * 4,
+                        frameTime: 16 + Math.random() * 2,
+                        triangles: Math.floor(1000 + Math.random() * 500)
+                    }
+                });
+            }
+        }, 1000);
+        
+        // Listen for game events
+        window.addEventListener('towerPlaced', (e) => {
+            const { cost } = e.detail;
+            gameHUD.updateGameData({
+                gold: gameHUD.gameData.gold - cost
+            });
+            gameHUD.clearTowerSelection();
+            gameHUD.showNotification('Tower placed successfully!', 'success');
+        });
+        
+        window.addEventListener('enemyKilled', (e) => {
+            const { reward, points } = e.detail;
+            gameHUD.updateGameData({
+                gold: gameHUD.gameData.gold + reward,
+                score: gameHUD.gameData.score + points
+            });
+        });
+        
+        window.addEventListener('lifeLost', () => {
+            gameHUD.updateGameData({
+                lives: gameHUD.gameData.lives - 1
+            });
+            gameHUD.showNotification('Life lost!', 'warning');
+        });
+    </script>
+</body>
+</html>
+

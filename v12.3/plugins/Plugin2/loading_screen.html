@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DARK MATTER - Loading Screen</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            background: #000;
+        }
+        
+        #loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #001122, #002244);
+            z-index: 10000;
+        }
+        
+        #shader-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .loading-title {
+            font-size: 3rem;
+            color: #00ff00;
+            text-shadow: 0 0 20px #00ff00;
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+        
+        .loading-subtitle {
+            font-size: 1.2rem;
+            color: #88ff88;
+            margin-bottom: 3rem;
+            opacity: 0.8;
+        }
+        
+        .loading-progress-container {
+            width: 400px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .loading-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #88ff88, #00ff00);
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading-progress-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: particle-float 2s infinite linear;
+        }
+        
+        .loading-status {
+            color: #00ff00;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            min-height: 1.5rem;
+        }
+        
+        .loading-tips {
+            color: #666;
+            font-size: 0.9rem;
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.4;
+        }
+        
+        .fog-sweep {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 0, 0.1) 0%, transparent 70%);
+            animation: fog-sweep 8s infinite linear;
+            pointer-events: none;
+        }
+        
+        .light-sweep {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #00ff00, transparent);
+            animation: light-sweep 3s infinite ease-in-out;
+            pointer-events: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        
+        @keyframes particle-float {
+            0% { transform: translateX(-10px) translateY(0px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(20px) translateY(-5px); opacity: 0; }
+        }
+        
+        @keyframes fog-sweep {
+            0% { transform: translateX(-50%) translateY(-50%) rotate(0deg); }
+            100% { transform: translateX(-50%) translateY(-50%) rotate(360deg); }
+        }
+        
+        @keyframes light-sweep {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .loading-title {
+                font-size: 2rem;
+            }
+            
+            .loading-progress-container {
+                width: 300px;
+            }
+            
+            .loading-tips {
+                font-size: 0.8rem;
+                max-width: 300px;
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-container">
+        <!-- Animated background effects -->
+        <div class="fog-sweep"></div>
+        <div class="light-sweep"></div>
+        <canvas id="shader-background"></canvas>
+        
+        <!-- Loading content -->
+        <div class="loading-title">DARK MATTER</div>
+        <div class="loading-subtitle">AI-Powered 3D Tower Defense</div>
+        
+        <!-- Progress bar with particles -->
+        <div class="loading-progress-container">
+            <div class="loading-progress-bar" id="progress-bar">
+                <div class="loading-progress-particles" id="progress-particles"></div>
+            </div>
+        </div>
+        
+        <!-- Status and tips -->
+        <div class="loading-status" id="loading-status">Initializing systems...</div>
+        <div class="loading-tips" id="loading-tips">
+            Tip: Use WASD to move, click to place towers, and Space to pause the game.
+        </div>
+    </div>
+    
+    <script>
+        class LoadingScreen {
+            constructor() {
+                this.progress = 0;
+                this.isVisible = true;
+                this.particles = [];
+                this.shaderCanvas = null;
+                this.shaderContext = null;
+                this.animationId = null;
+                
+                this.loadingSteps = [
+                    'Initializing systems...',
+                    'Loading Three.js engine...',
+                    'Setting up physics world...',
+                    'Initializing AI systems...',
+                    'Loading audio manager...',
+                    'Creating particle systems...',
+                    'Setting up shaders...',
+                    'Preparing game world...',
+                    'Loading enemy models...',
+                    'Finalizing setup...',
+                    'Ready to play!'
+                ];
+                
+                this.tips = [
+                    'Tip: Use WASD to move, click to place towers, and Space to pause the game.',
+                    'Tip: Different enemy types require different strategies to defeat.',
+                    'Tip: Upgrade your towers to deal with stronger enemies.',
+                    'Tip: Watch your gold carefully - towers cost resources to build.',
+                    'Tip: Some enemies fly and require special anti-air towers.',
+                    'Tip: Boss enemies have multiple phases and special abilities.',
+                    'Tip: Use the minimap to track enemy movements.',
+                    'Tip: Procedural generation ensures each level is unique.'
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupShaderBackground();
+                this.startAnimation();
+                this.rotateTips();
+            }
+            
+            setupShaderBackground() {
+                this.shaderCanvas = document.getElementById('shader-background');
+                this.shaderContext = this.shaderCanvas.getContext('2d');
+                
+                this.resizeShaderCanvas();
+                window.addEventListener('resize', () => this.resizeShaderCanvas());
+            }
+            
+            resizeShaderCanvas() {
+                this.shaderCanvas.width = window.innerWidth;
+                this.shaderCanvas.height = window.innerHeight;
+            }
+            
+            startAnimation() {
+                const animate = () => {
+                    if (!this.isVisible) return;
+                    
+                    this.updateShaderBackground();
+                    this.updateParticles();
+                    
+                    this.animationId = requestAnimationFrame(animate);
+                };
+                animate();
+            }
+            
+            updateShaderBackground() {
+                const ctx = this.shaderContext;
+                const width = this.shaderCanvas.width;
+                const height = this.shaderCanvas.height;
+                const time = performance.now() * 0.001;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+                
+                // Create animated gradient
+                const gradient = ctx.createLinearGradient(0, 0, width, height);
+                const hue1 = (time * 20) % 360;
+                const hue2 = (time * 30 + 120) % 360;
+                
+                gradient.addColorStop(0, `hsla(${hue1}, 50%, 10%, 0.3)`);
+                gradient.addColorStop(0.5, `hsla(${hue2}, 60%, 15%, 0.2)`);
+                gradient.addColorStop(1, `hsla(${hue1 + 60}, 40%, 8%, 0.3)`);
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, width, height);
+                
+                // Add moving light streaks
+                ctx.strokeStyle = 'rgba(0, 255, 0, 0.1)';
+                ctx.lineWidth = 2;
+                
+                for (let i = 0; i < 5; i++) {
+                    const x = (time * 50 + i * 100) % (width + 200) - 100;
+                    const y = Math.sin(time + i) * 50 + height / 2;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x - 50, y);
+                    ctx.lineTo(x + 50, y);
+                    ctx.stroke();
+                }
+            }
+            
+            updateParticles() {
+                const progressBar = document.getElementById('progress-bar');
+                const particlesContainer = document.getElementById('progress-particles');
+                
+                // Add new particles based on progress
+                if (Math.random() < this.progress * 0.1) {
+                    this.createProgressParticle(particlesContainer);
+                }
+                
+                // Update existing particles
+                this.particles.forEach((particle, index) => {
+                    particle.life -= 0.016; // Assuming 60fps
+                    
+                    if (particle.life <= 0) {
+                        particle.element.remove();
+                        this.particles.splice(index, 1);
+                    } else {
+                        const opacity = particle.life / particle.maxLife;
+                        particle.element.style.opacity = opacity;
+                    }
+                });
+            }
+            
+            createProgressParticle(container) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                
+                container.appendChild(particle);
+                
+                const particleData = {
+                    element: particle,
+                    life: 2.0,
+                    maxLife: 2.0
+                };
+                
+                this.particles.push(particleData);
+                
+                // Remove particle after animation
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                    const index = this.particles.indexOf(particleData);
+                    if (index > -1) {
+                        this.particles.splice(index, 1);
+                    }
+                }, 2000);
+            }
+            
+            rotateTips() {
+                let tipIndex = 0;
+                const tipsElement = document.getElementById('loading-tips');
+                
+                setInterval(() => {
+                    tipIndex = (tipIndex + 1) % this.tips.length;
+                    tipsElement.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        tipsElement.textContent = this.tips[tipIndex];
+                        tipsElement.style.opacity = '1';
+                    }, 300);
+                }, 4000);
+            }
+            
+            updateProgress(progress, stepIndex = null) {
+                this.progress = Math.max(0, Math.min(1, progress));
+                
+                const progressBar = document.getElementById('progress-bar');
+                const statusElement = document.getElementById('loading-status');
+                
+                // Update progress bar with easing
+                const easedProgress = this.easeInOutCubic(this.progress);
+                progressBar.style.width = (easedProgress * 100) + '%';
+                
+                // Update status text
+                if (stepIndex !== null && stepIndex < this.loadingSteps.length) {
+                    statusElement.textContent = this.loadingSteps[stepIndex];
+                } else {
+                    const autoStepIndex = Math.floor(this.progress * (this.loadingSteps.length - 1));
+                    statusElement.textContent = this.loadingSteps[autoStepIndex];
+                }
+                
+                // Add screen shake effect when near completion
+                if (this.progress > 0.9) {
+                    const container = document.getElementById('loading-container');
+                    const shake = Math.sin(performance.now() * 0.05) * 2;
+                    container.style.transform = `translateX(${shake}px)`;
+                }
+            }
+            
+            easeInOutCubic(t) {
+                return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+            }
+            
+            hide(callback) {
+                const container = document.getElementById('loading-container');
+                
+                // Fade out animation
+                container.style.transition = 'opacity 1s ease-out, transform 1s ease-out';
+                container.style.opacity = '0';
+                container.style.transform = 'scale(1.1)';
+                
+                setTimeout(() => {
+                    container.classList.add('hidden');
+                    this.isVisible = false;
+                    
+                    if (this.animationId) {
+                        cancelAnimationFrame(this.animationId);
+                    }
+                    
+                    if (callback) callback();
+                }, 1000);
+            }
+            
+            show() {
+                const container = document.getElementById('loading-container');
+                container.classList.remove('hidden');
+                container.style.opacity = '1';
+                container.style.transform = 'scale(1)';
+                this.isVisible = true;
+                this.startAnimation();
+            }
+        }
+        
+        // Initialize loading screen
+        const loadingScreen = new LoadingScreen();
+        
+        // Make it globally accessible
+        window.darkMatterLoadingScreen = loadingScreen;
+        
+        // Example usage - simulate loading process
+        let progress = 0;
+        const loadingInterval = setInterval(() => {
+            progress += 0.02;
+            loadingScreen.updateProgress(progress);
+            
+            if (progress >= 1.0) {
+                clearInterval(loadingInterval);
+                
+                // Auto-hide after completion (remove this in actual implementation)
+                setTimeout(() => {
+                    loadingScreen.hide(() => {
+                        console.log('Loading screen hidden');
+                    });
+                }, 1000);
+            }
+        }, 100);
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,14 @@
+{
+  "name": "threejs_scene_manager",
+  "version": "1.0.0",
+  "author": "DARK MATTER Team",
+  "entry": "scene_manager.js",
+  "description": "Three.js scene management plugin with camera controls, lighting, and performance optimization",
+  "type": "core",
+  "compatibleWith": ["DARKMATTER>=8.2.0"],
+  "exposes": ["initScene", "addObject", "removeObject", "setCameraMode", "updateLighting", "optimizeScene"],
+  "dependencies": ["three.js"],
+  "ui": ["scene_controls_ui.html", "scene_controls_ui.js"],
+  "assets": ["environments/"]
+}
+

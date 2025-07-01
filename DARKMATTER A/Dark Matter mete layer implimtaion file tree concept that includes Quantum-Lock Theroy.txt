@@ -1,0 +1,271 @@
+## 1. Overall Project Structure
+
+```
+RL-LLM-dev-tool/
+├── .github/                            # NEW: GitHub Actions workflows, issue templates, etc.
+│   ├── workflows/
+│   │   ├── ci.yml
+│   │   └── deploy.yml
+│   └── ISSUE_TEMPLATE.md
+├── .vscode/                            # NEW: VSCode workspace settings and recommended extensions
+│   └── settings.json
+├── .gitignore
+├── README.md
+├── requirements.txt                    # Python dependencies
+├── package.json                        # Frontend dependencies (for web_ui)
+├── tsconfig.json                       # TypeScript configuration (for web_ui)
+├── tailwind.config.js                  # Tailwind CSS configuration (for web_ui)
+├── postcss.config.js                   # PostCSS configuration (for web_ui)
+├── Dockerfile                          # NEW: Dockerfile for containerization
+├── docker-compose.yml                  # NEW: Docker Compose for multi-service orchestration
+├── scripts/                            # Top-level utility scripts (e.g., setup, build, run_dev)
+│   ├── setup.sh
+│   ├── build_frontend.sh
+│   ├── start_backend.sh
+│   └── start_dev_env.sh
+│
+└── v8.2/                               # Main application version directory
+    ├── config/                         # Existing configuration files
+    │   ├── curriculum_v8.json
+    │   ├── hitl_v8.json
+    │   ├── nerf_v8.json
+    │   ├── replay_v8.json
+    │   ├── reward_v8.json
+    │   ├── robustness_v8.json
+    │   ├── system_v8.json
+    │   ├── training_v8.json
+    │   └── visualization_v8.json
+    │
+    ├── core/                           # Existing core RL components
+    │   ├── environments/
+    │   │   ├── __init__.py
+    │   │   ├── base_env.py
+    │   │   └── custom_env_v8.py
+    │   ├── models/
+    │   │   ├── __init__.py
+    │   │   └── policy_network_v8.py
+    │   ├── __init__.py
+    │   ├── curriculum_learning_v8.py
+    │   ├── nerf_integration_v8.py
+    │   ├── plugin_loader_v8.py
+    │   ├── replay_buffer_v8.py
+    │   ├── reward_system_v8.py
+    │   ├── training_loop_v8.py
+    │   └── two_state_world_v8.py
+    │
+    ├── dark_matter/                    # NEW: The "DARK MATTER" core module
+    │   ├── __init__.py
+    │   ├── manager.py                  # DarkMatterManager: all world orchestration logic
+    │   ├── models.py                   # Data models for world lines, environment meta, etc.
+    │   ├── api.py                      # Internal API definitions for Dark Matter
+    │   ├── tests/
+    │   │   └── test_manager.py
+    │   ├── README.md
+    │   ├── blockchain/                 # NEW: Blockchain layer for immutable state management
+    │   │   ├── __init__.py
+    │   │   ├── chain.py                # Handles block creation, validation, consensus
+    │   │   ├── models.py               # State, transaction, and block definitions
+    │   │   ├── api.py                  # Internal API for blockchain state transitions
+    │   │   ├── ledger.db               # Placeholder for a local ledger database file
+    │   │   └── tests/
+    │   │       └── test_chain.py
+    │   ├── green_state.py              # Logic for managing the canonical (live) "Green State"
+    │   ├── blue_state.py               # Logic for managing experimental "Blue State" environments
+    │   ├── data_contracts/             # NEW: Explicit data contracts for inter-module communication
+    │   │   ├── __init__.py
+    │   │   └── dm_schemas.py           # Pydantic models or similar for strict data validation
+    │   ├── god_doctrine/               # NEW: The "GOD Doctrine" failsafe for Green State resilience
+    │   │   ├── __init__.py
+    │   │   ├── shadow_manager.py       # Orchestrates the Shadow Green State
+    │   │   ├── replicator.py           # Handles low-level data replication and synchronization
+    │   │   ├── health_monitor.py       # Monitors primary Green State health
+    │   │   ├── god_controller.py       # Evaluates failures, initiates failover
+    │   │   ├── models.py               # Data models for Shadow Green State, replication, monitoring
+    │   │   ├── config.py               # Configuration for replication, monitoring, failover policies
+    │   │   └── tests/
+    │   │       ├── test_replication.py
+    │   │       ├── test_failover.py
+    │   │       └── test_monitoring.py
+    │
+    ├── docs/                           # Existing and new documentation
+    │   ├── api_reference_v8.md
+    │   ├── architecture_v8.md
+    │   ├── contributing_v8.md
+    │   ├── design_docs/
+    │   ├── patch_logs/
+    │   ├── research_papers/
+    │   ├── setup_guide_v8.md
+    │   ├── DARK_MATTER.md              # Documentation for the DARK MATTER concept
+    │   ├── BLOCKCHAIN_GUARDRAILS.md    # Documentation for the Blockchain Quantum-Lock
+    │   └── GOD_DOCTRINE.md             # Documentation for the GOD Doctrine failsafe
+    │
+    ├── hitl/                           # Existing Human-in-the-Loop components
+    │   ├── cli_interface/
+    │   │   ├── __init__.py
+    │   │   └── cli.py
+    │   ├── web_interface/              # Existing skeletal web interface (will be replaced/integrated)
+    │   │   ├── __init__.py
+    │   │   └── app.py
+    │   ├── __init__.py
+    │   └── hitl_feedback_manager_v8.py
+    │
+    ├── plugins/                        # Existing plugin system
+    │   ├── __init__.py
+    │   ├── example_plugin_v8.py
+    │   ├── plugin_api_v8.py
+    │   └── darkmatter/                 # NEW: Darkmatter-specific plugins
+    │       ├── __init__.py
+    │       ├── quantum_lock_plugin.py
+    │       └── environment_binding_plugin.py
+    │
+    ├── scripts/                        # Existing and new scripts
+    │   ├── __init__.py
+    │   ├── deploy_system.sh
+    │   ├── run_tests.sh
+    │   ├── run_training.sh
+    │   ├── dev_server.sh               # NEW: Script to start local dev servers (backend, frontend)
+    │   └── cleanup.sh                  # NEW: Script to clean up build artifacts, logs, etc.
+    │
+    ├── tests/                          # Existing and new tests
+    │   ├── integration_tests/
+    │   ├── performance_tests/
+    │   ├── unit_tests/
+    │   ├── robustness_testing_v8.py
+    │   └── dark_matter_integration_tests/ # NEW: Integration tests for Dark Matter
+    │       ├── __init__.py
+    │       └── test_multiverse_flow.py
+    │
+    ├── utils/                          # Existing utilities
+    │   ├── __init__.py
+    │   ├── data_processing_v8.py
+    │   ├── helper_functions_v8.py
+    │   └── logging_config_v8.py
+    │
+    ├── visualization/                  # Existing visualization components
+    │   ├── dashboards/
+    │   │   ├── __init__.py
+    │   │   └── main_dashboard.py
+    │   ├── reporting/
+    │   │   ├── __init__.py
+    │   │   └── report_generator.py
+    │   ├── __init__.py
+    │   └── visualization_manager_v8.py
+    │
+    ├── backend_api/                    # NEW: Dedicated backend API for the web UI (FastAPI)
+    │   ├── __init__.py
+    │   ├── main.py                     # FastAPI application entry point
+    │   ├── routers/                    # API endpoints organized by resource
+    │   │   ├── auth.py
+    │   │   ├── scenes.py
+    │   │   ├── training.py
+    │   │   ├── collaboration.py
+    │   │   ├── analytics.py
+    │   │   ├── dark_matter.py          # New FastAPI router for Dark Matter endpoints
+    │   │   ├── blockchain.py           # NEW: FastAPI router for blockchain-specific endpoints
+    │   │   └── god_admin.py            # NEW: Highly restricted, internal-only router for GOD Doctrine admin
+    │   ├── models/                     # Pydantic models for request/response validation
+    │   │   ├── scene_models.py
+    │   │   ├── training_models.py
+    │   │   └── user_models.py
+    │   ├── services/                   # Business logic and integration with core RL components
+    │   │   ├── scene_service.py
+    │   │   ├── training_service.py
+    │   │   ├── collaboration_service.py
+    │   │   └── core_integration.py     # Adapter for existing v8.2 core components
+    │   ├── dependencies.py             # Dependency injection for database, auth, etc.
+    │   ├── database.py                 # Database connection and ORM setup
+    │   ├── config.py                   # Backend configuration
+    │   ├── tests/                      # Backend API tests
+    │   │   ├── test_scenes.py
+    │   │   └── test_training.py
+    │   └── cli/                        # NEW: Command Line Interface tools for backend operations
+    │       ├── __init__.py
+    │       └── dm_cli.py               # Script for local control and scripting of Dark Matter
+    │
+    ├── web_ui/                         # NEW: Root for the comprehensive web UI application (React/TypeScript)
+    │   ├── public/
+    │   │   ├── index.html
+    │   │   └── favicon.ico
+    │   ├── src/
+    │   │   ├── App.tsx
+    │   │   ├── index.tsx
+    │   │   ├── assets/                 # Static assets like images, 3D models, textures
+    │   │   │   ├── models/
+    │   │   │   ├── textures/
+    │   │   │   └── icons/
+    │   │   ├── components/             # Reusable UI components
+    │   │   │   ├── common/
+    │   │   │   │   ├── Button.tsx
+    │   │   │   │   └── Modal.tsx
+    │   │   │   ├── layout/
+    │   │   │   │   ├── Header.tsx
+    │   │   │   │   ├── Sidebar.tsx
+    │   │   │   │   └── MainContent.tsx
+    │   │   │   ├── 3d/
+    │   │   │   │   ├── SceneViewer.tsx
+    │   │   │   │   ├── ObjectEditor.tsx
+    │   │   │   │   └── SceneGraphTree.tsx
+    │   │   │   ├── debug/
+    │   │   │   │   ├── FrameDebugger.tsx
+    │   │   │   │   ├── RewardOverlay.tsx
+    │   │   │   │   └── AttentionVisualizer.tsx
+    │   │   │   ├── code/
+    │   │   │   │   ├── CodeEditor.tsx
+    │   │   │   │   └── CodeSuggestions.tsx
+    │   │   │   ├── collaboration/
+    │   │   │   │   ├── ChatPanel.tsx
+    │   │   │   │   └── UserPresence.tsx
+    │   │   │   ├── analytics/
+    │   │   │   │   ├── PerformanceDashboard.tsx
+    │   │   │   │   └── ErrorLogViewer.tsx
+    │   │   │   ├── dark_matter/      # UI components specific to Dark Matter
+    │   │   │   │   ├── MultiverseGraph.tsx
+    │   │   │   │   ├── EnvNode.tsx
+    │   │   │   │   ├── BlockchainStatus.tsx
+    │   │   │   │   ├── PromoteButton.tsx
+    │   │   │   │   └── AuditLogViewer.tsx
+    │   │   │   └── admin/              # NEW: Admin-specific UI components
+    │   │   │       └── GodDashboard.tsx
+    │   │   ├── hooks/                  # Custom React hooks
+    │   │   │   ├── useScene.ts
+    │   │   │   ├── useTrainingData.ts
+    │   │   │   └── useDarkMatter.ts
+    │   │   ├── pages/                  # Top-level views/pages
+    │   │   │   ├── DashboardPage.tsx
+    │   │   │   ├── SceneEditorPage.tsx
+    │   │   │   ├── TrainingPage.tsx
+    │   │   │   ├── DebuggingPage.tsx
+    │   │   │   ├── CollaborationPage.tsx
+    │   │   │   ├── SettingsPage.tsx
+    │   │   │   └── DarkMatterPage.tsx
+    │   │   ├── services/               # Frontend services for API interaction
+    │   │   │   ├── api.ts
+    │   │   │   ├── websocket.ts
+    │   │   │   └── auth.ts
+    │   │   ├── store/                  # State management (e.g., Zustand/Redux slices)
+    │   │   │   ├── sceneStore.ts
+    │   │   │   ├── trainingStore.ts
+    │   │   │   ├── authStore.ts
+    │   │   │   └── darkMatterStore.ts
+    │   │   ├── styles/                 # Global styles and CSS utilities
+    │   │   │   ├── index.css
+    │   │   │   └── tailwind.css
+    │   │   ├── utils/                  # Frontend utility functions
+    │   │   │   ├── 3dHelpers.ts
+    │   │   │   └── dataParsers.ts
+    │   │   └── marketplace/            # NEW: Placeholder for a plugin marketplace/catalog UI
+    │   │       ├── __init__.py
+    │   │       └── PluginCatalog.tsx
+    │   ├── package.json
+    │   ├── tsconfig.json
+    │   ├── tailwind.config.js
+    │   └── postcss.config.js
+    │
+    └── database/                       # NEW: Centralized database management
+        ├── migrations/
+        │   ├── 001_initial_schema.sql
+        │   └── ...
+        ├── models.py                   # SQLAlchemy/ORM models for database tables
+        └── session.py                  # Database session management
+
+```

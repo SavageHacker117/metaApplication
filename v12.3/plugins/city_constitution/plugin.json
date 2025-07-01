@@ -1,0 +1,11 @@
+{
+  "name": "city_constitution",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "constitution.py",
+  "description": "City/regional policy and law engine with live AI/agent enforcement.",
+  "type": "policy+ai",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["propose_law", "vote_law", "enforce_law"],
+  "ui": ["constitution_panel.html", "constitution_panel.js"]
+}

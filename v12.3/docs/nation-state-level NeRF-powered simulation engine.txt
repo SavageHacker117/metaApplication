@@ -1,0 +1,372 @@
+complete plugin folders for:
+
+NeRF Particle Engine (GPU-ready, real-time particles)
+
+World-Liner Streaming & Forking (procedural terrain/city, with partitioning)
+
+Agent Swarm AI (multi-agent governance/society simulation)
+
+Geo-Political Simulator (nation-state diplomacy, war, and policy events)
+
+Shader Hot-Reload & Secure Plugin (live code, rollbacks, signed bundles)
+
+Emergency Response Sandbox (multi-user, real-time branching disaster response)
+
+City Constitution/Policy Engine (editable laws, AI enforcement)
+
+Live “World Pulse” Monitor (real-time world/metrics dashboard)
+
+All templates will have:
+
+plugin.json manifest
+
+Core code (Python or JS)
+
+UI if relevant (HTML/JS)
+
+Any special engine or security code needed
+
+1. NeRF Particle Engine Plugin
+plugins/nerf_particle_engine/plugin.json
+
+json
+Copy
+Edit
+{
+  "name": "nerf_particle_engine",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "main.py",
+  "description": "Real-time GPU NeRF-powered particle and field simulation.",
+  "type": "nerf+physics",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["emit_particles", "update_field", "save_field"],
+  "ui": ["nerf_panel.html", "nerf_panel.js"]
+}
+plugins/nerf_particle_engine/main.py
+
+python
+Copy
+Edit
+import numpy as np
+
+class NeRFParticleField:
+    def __init__(self, engine, max_particles=100000):
+        self.engine = engine
+        self.max_particles = max_particles
+        self.particles = np.zeros((max_particles, 7)) # x,y,z,dx,dy,dz,lifetime
+        self.active = 0
+
+    def emit_particles(self, center, count, spread=1.0):
+        for i in range(count):
+            if self.active >= self.max_particles: break
+            x, y, z = center
+            dx, dy, dz = np.random.randn(3) * spread
+            lifetime = np.random.uniform(2, 6)
+            self.particles[self.active] = [x, y, z, dx, dy, dz, lifetime]
+            self.active += 1
+        print(f"[RUBY][NeRF] Emitted {count} particles at {center}")
+
+    def update_field(self, dt=0.016):
+        for i in range(self.active):
+            self.particles[i, 0:3] += self.particles[i, 3:6] * dt
+            self.particles[i, 6] -= dt
+        # Remove dead
+        live_idx = np.where(self.particles[:self.active, 6] > 0)[0]
+        self.particles[:len(live_idx)] = self.particles[live_idx]
+        self.active = len(live_idx)
+
+    def save_field(self, path):
+        np.save(path, self.particles[:self.active])
+        print(f"[RUBY][NeRF] Saved {self.active} particles to {path}")
+
+def register(pluginAPI):
+    field = NeRFParticleField(pluginAPI.engine)
+    pluginAPI.provide("emit_particles", field.emit_particles)
+    pluginAPI.provide("update_field", field.update_field)
+    pluginAPI.provide("save_field", field.save_field)
+    print("[RUBY] nerf_particle_engine registered.")
+plugins/nerf_particle_engine/nerf_panel.html
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NeRF Particle Panel</title>
+  <style>body{background:#111;color:#fff;font-family:monospace;}</style>
+</head>
+<body>
+  <h2>NeRF Particles</h2>
+  <label>Center: <input id="cx" value="0"><input id="cy" value="0"><input id="cz" value="0"></label><br>
+  <label>Count: <input id="count" value="1000"></label><br>
+  <button id="emitBtn">Emit</button>
+  <button id="saveBtn">Save</button>
+  <div id="out"></div>
+  <script src="nerf_panel.js"></script>
+</body>
+</html>
+plugins/nerf_particle_engine/nerf_panel.js
+
+javascript
+Copy
+Edit
+document.getElementById('emitBtn').onclick = function() {
+  let cx = parseFloat(document.getElementById('cx').value);
+  let cy = parseFloat(document.getElementById('cy').value);
+  let cz = parseFloat(document.getElementById('cz').value);
+  let count = parseInt(document.getElementById('count').value);
+  if(window.rubyEngine) window.rubyEngine.plugins.nerf_particle_engine.emit_particles([cx,cy,cz], count);
+};
+document.getElementById('saveBtn').onclick = function() {
+  if(window.rubyEngine) window.rubyEngine.plugins.nerf_particle_engine.save_field('nerf_particles.npy');
+};
+2. World-Liner Streaming & Forking Plugin
+plugins/world_liner/plugin.json
+
+json
+Copy
+Edit
+{
+  "name": "world_liner",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "liner.py",
+  "description": "Partitioned, streaming world-timeline forking and region management.",
+  "type": "world-liner",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["stream_region", "fork_world", "merge_branches"],
+  "ui": ["liner_panel.html", "liner_panel.js"]
+}
+plugins/world_liner/liner.py
+
+python
+Copy
+Edit
+class WorldLiner:
+    def __init__(self, engine):
+        self.engine = engine
+        self.branches = {}
+
+    def stream_region(self, region_id):
+        print(f"[RUBY][WorldLiner] Streaming region {region_id}")
+        # Placeholder: Load region, NeRF, terrain, agents
+
+    def fork_world(self, from_time):
+        branch_id = len(self.branches) + 1
+        self.branches[branch_id] = {"from": from_time, "state": self.engine.snapshot()}
+        print(f"[RUBY][WorldLiner] Forked world at {from_time} as branch {branch_id}")
+        return branch_id
+
+    def merge_branches(self, base_branch, merge_branch):
+        print(f"[RUBY][WorldLiner] Merged branch {merge_branch} into {base_branch}")
+        # Placeholder: Actual merge logic
+
+def register(pluginAPI):
+    liner = WorldLiner(pluginAPI.engine)
+    pluginAPI.provide("stream_region", liner.stream_region)
+    pluginAPI.provide("fork_world", liner.fork_world)
+    pluginAPI.provide("merge_branches", liner.merge_branches)
+    print("[RUBY] world_liner plugin registered.")
+plugins/world_liner/liner_panel.html
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head><title>World-Liner</title></head>
+<body style="background:#171c25;color:#fff;font-family:monospace;">
+  <h2>World Timeline</h2>
+  <button id="forkBtn">Fork World</button>
+  <button id="mergeBtn">Merge Branches</button>
+  <script src="liner_panel.js"></script>
+</body>
+</html>
+plugins/world_liner/liner_panel.js
+
+javascript
+Copy
+Edit
+document.getElementById('forkBtn').onclick = function() {
+  if(window.rubyEngine) window.rubyEngine.plugins.world_liner.fork_world(Date.now());
+};
+document.getElementById('mergeBtn').onclick = function() {
+  if(window.rubyEngine) window.rubyEngine.plugins.world_liner.merge_branches(1,2);
+};
+3. Agent Swarm AI Plugin
+plugins/agent_swarm_ai/plugin.json
+
+json
+Copy
+Edit
+{
+  "name": "agent_swarm_ai",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "swarm.py",
+  "description": "Distributed agent swarm logic for social, economic, or ecosystem simulation.",
+  "type": "agent+ai",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["spawn_agents", "policy_vote", "observe_events"],
+  "ui": ["swarm_panel.html", "swarm_panel.js"]
+}
+plugins/agent_swarm_ai/swarm.py
+
+python
+Copy
+Edit
+import random
+
+class Swarm:
+    def __init__(self, engine, n_agents=100):
+        self.engine = engine
+        self.agents = [{"id":i, "state":"idle", "votes":0} for i in range(n_agents)]
+
+    def spawn_agents(self, n, territory=None):
+        start_id = len(self.agents)
+        for i in range(n):
+            self.agents.append({"id":start_id+i, "state":"idle", "votes":0})
+        print(f"[RUBY][Swarm] Spawned {n} agents.")
+
+    def policy_vote(self, agent_id, policy):
+        self.agents[agent_id]["votes"] += 1
+        print(f"[RUBY][Swarm] Agent {agent_id} voted for {policy}")
+
+    def observe_events(self):
+        # Log/print agent states
+        return [a["state"] for a in self.agents]
+
+def register(pluginAPI):
+    swarm = Swarm(pluginAPI.engine)
+    pluginAPI.provide("spawn_agents", swarm.spawn_agents)
+    pluginAPI.provide("policy_vote", swarm.policy_vote)
+    pluginAPI.provide("observe_events", swarm.observe_events)
+    print("[RUBY] agent_swarm_ai plugin registered.")
+plugins/agent_swarm_ai/swarm_panel.html
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head><title>Agent Swarm AI</title></head>
+<body style="background:#161f16;color:#fff;font-family:monospace;">
+  <h2>Agent Swarm</h2>
+  <button id="spawnBtn">Spawn 100 Agents</button>
+  <button id="voteBtn">Random Vote</button>
+  <div id="agentLog"></div>
+  <script src="swarm_panel.js"></script>
+</body>
+</html>
+plugins/agent_swarm_ai/swarm_panel.js
+
+javascript
+Copy
+Edit
+document.getElementById('spawnBtn').onclick = function() {
+  if(window.rubyEngine) window.rubyEngine.plugins.agent_swarm_ai.spawn_agents(100);
+};
+document.getElementById('voteBtn').onclick = function() {
+  let id = Math.floor(Math.random()*100);
+  if(window.rubyEngine) window.rubyEngine.plugins.agent_swarm_ai.policy_vote(id,"policy_X");
+  document.getElementById('agentLog').innerHTML += `<div>Agent ${id} voted for policy_X</div>`;
+};
+4. Geo-Political Simulator Plugin
+plugins/geopolitics_sim/plugin.json
+
+json
+Copy
+Edit
+{
+  "name": "geopolitics_sim",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "geopolitics.py",
+  "description": "Nation-state logic: diplomacy, war, alliance, treaties, events.",
+  "type": "policy+simulation",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["declare_war", "form_alliance", "propose_treaty"],
+  "ui": ["geo_panel.html", "geo_panel.js"]
+}
+plugins/geopolitics_sim/geopolitics.py
+
+python
+Copy
+Edit
+class Nation:
+    def __init__(self, name):
+        self.name = name
+        self.allies = set()
+        self.enemies = set()
+        self.treaties = []
+
+class GeoSim:
+    def __init__(self, engine):
+        self.engine = engine
+        self.nations = {}
+
+    def declare_war(self, nation_a, nation_b):
+        self.nations.setdefault(nation_a, Nation(nation_a))
+        self.nations.setdefault(nation_b, Nation(nation_b))
+        self.nations[nation_a].enemies.add(nation_b)
+        self.nations[nation_b].enemies.add(nation_a)
+        print(f"[RUBY][GeoSim] {nation_a} declared war on {nation_b}")
+
+    def form_alliance(self, nation_a, nation_b):
+        self.nations.setdefault(nation_a, Nation(nation_a))
+        self.nations.setdefault(nation_b, Nation(nation_b))
+        self.nations[nation_a].allies.add(nation_b)
+        self.nations[nation_b].allies.add(nation_a)
+        print(f"[RUBY][GeoSim] {nation_a} formed alliance with {nation_b}")
+
+    def propose_treaty(self, nation_a, nation_b, terms):
+        treaty = {"nations": [nation_a, nation_b], "terms": terms}
+        self.nations[nation_a].treaties.append(treaty)
+        self.nations[nation_b].treaties.append(treaty)
+        print(f"[RUBY][GeoSim] Treaty proposed between {nation_a} and {nation_b}: {terms}")
+
+def register(pluginAPI):
+    sim = GeoSim(pluginAPI.engine)
+    pluginAPI.provide("declare_war", sim.declare_war)
+    pluginAPI.provide("form_alliance", sim.form_alliance)
+    pluginAPI.provide("propose_treaty", sim.propose_treaty)
+    print("[RUBY] geopolitics_sim plugin registered.")
+plugins/geopolitics_sim/geo_panel.html
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head><title>Geo-Political Sim</title></head>
+<body style="background:#202038;color:#ffe;font-family:monospace;">
+  <h2>Geo-Political Simulator</h2>
+  <label>Nation A: <input id="na" value="Alpha"></label>
+  <label>Nation B: <input id="nb" value="Beta"></label>
+  <button id="warBtn">Declare War</button>
+  <button id="allyBtn">Form Alliance</button>
+  <button id="treatyBtn">Propose Treaty</button>
+  <input id="terms" placeholder="Treaty terms" size="20">
+  <div id="geoLog"></div>
+  <script src="geo_panel.js"></script>
+</body>
+</html>
+plugins/geopolitics_sim/geo_panel.js
+
+javascript
+Copy
+Edit
+document.getElementById('warBtn').onclick = function() {
+  let a = document.getElementById('na').value, b = document.getElementById('nb').value;
+  if(window.rubyEngine) window.rubyEngine.plugins.geopolitics_sim.declare_war(a, b);
+};
+document.getElementById('allyBtn').onclick = function() {
+  let a = document.getElementById('na').value, b = document.getElementById('nb').value;
+  if(window.rubyEngine) window.rubyEngine.plugins.geopolitics_sim.form_alliance(a, b);
+};
+document.getElementById('treatyBtn').onclick = function() {
+  let a = document.getElementById('na').value, b = document.getElementById('nb').value, terms = document.getElementById('terms').value;
+  if(window.rubyEngine) window.rubyEngine.plugins.geopolitics_sim.propose_treaty(a, b, terms);
+};

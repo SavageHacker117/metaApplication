@@ -1,0 +1,11 @@
+{
+  "name": "emergency_response",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "emergency.py",
+  "description": "Real-time disaster/response simulation: earthquake, fire, alien attack. Supports branching and rollback.",
+  "type": "simulation",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["trigger_event", "branch_disaster", "rollback_state"],
+  "ui": ["emergency_panel.html", "emergency_panel.js"]
+}

@@ -1,0 +1,95 @@
+# RL Training System Version 12 - Requirements
+# Core dependencies for the enhanced RL training system
+
+# Core ML/RL frameworks
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+numpy>=1.21.0
+scipy>=1.7.0
+scikit-learn>=1.0.0
+
+# Reinforcement Learning
+gym>=0.21.0
+stable-baselines3>=2.0.0
+tensorboard>=2.10.0
+wandb>=0.13.0
+
+# Computer Vision and Graphics
+opencv-python>=4.6.0
+Pillow>=9.0.0
+imageio>=2.19.0
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Data Processing
+pandas>=1.4.0
+h5py>=3.7.0
+zarr>=2.12.0
+
+# Web Framework (for HITL interface)
+flask>=2.2.0
+flask-cors>=3.0.10
+requests>=2.28.0
+
+# Visualization and Plotting
+plotly>=5.10.0
+bokeh>=2.4.0
+dash>=2.6.0
+
+# System Monitoring
+psutil>=5.9.0
+GPUtil>=1.4.0
+
+# File I/O and Compression
+tqdm>=4.64.0
+joblib>=1.1.0
+
+lz4>=4.0.0
+zstandard>=0.18.0
+
+# Configuration and Utilities
+pyyaml>=6.0
+toml>=0.10.2
+click>=8.1.0
+rich>=12.5.0
+
+# Testing and Quality
+pytest>=7.1.0
+pytest-cov>=3.0.0
+black>=22.6.0
+flake8>=5.0.0
+mypy>=0.971
+
+# Optional: Advanced features
+# Uncomment if needed for specific deployments
+
+# Distributed training
+# ray[default]>=2.0.0
+# horovod>=0.25.0
+
+# Advanced visualization
+# mayavi>=4.8.0
+# vtk>=9.1.0
+
+# Audio processing (for future HITL features)
+# librosa>=0.9.0
+# soundfile>=0.10.0
+
+# Database support
+# sqlalchemy>=1.4.0
+# redis>=4.3.0
+
+# Cloud storage
+# boto3>=1.24.0
+# google-cloud-storage>=2.5.0
+
+# Jupyter notebook support
+# jupyter>=1.0.0
+# ipywidgets>=7.7.0
+
+# Development tools
+pre-commit>=2.20.0
+sphinx>=5.1.0
+sphinx-rtd-theme>=1.0.0
+

@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DARK MATTER - Game Menu</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            background: #000;
+        }
+        
+        #menu-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #001122, #002244, #001133);
+            z-index: 9000;
+        }
+        
+        .menu-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23003300" stroke-width="0.5" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            animation: grid-move 20s infinite linear;
+            opacity: 0.3;
+        }
+        
+        .menu-title {
+            font-size: 4rem;
+            color: #00ff00;
+            text-shadow: 0 0 30px #00ff00, 0 0 60px #00ff00;
+            margin-bottom: 1rem;
+            animation: title-glow 3s infinite ease-in-out;
+            text-align: center;
+        }
+        
+        .menu-subtitle {
+            font-size: 1.5rem;
+            color: #88ff88;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            text-align: center;
+        }
+        
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .menu-button {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(0, 255, 0, 0.2));
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-width: 250px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .menu-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .menu-button:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 255, 0, 0.3));
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .menu-button:hover::before {
+            left: 100%;
+        }
+        
+        .menu-button:active {
+            transform: translateY(0);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        .menu-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: rgba(100, 100, 100, 0.1);
+            border-color: #666;
+            color: #666;
+        }
+        
+        .menu-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+        
+        .option-group {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #004400;
+            border-radius: 8px;
+            padding: 1rem;
+            min-width: 200px;
+        }
+        
+        .option-title {
+            color: #00ff00;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .option-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+        
+        .option-label {
+            color: #88ff88;
+            font-size: 0.9rem;
+            min-width: 80px;
+        }
+        
+        select, input[type="range"], input[type="number"] {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 5px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 5px;
+            background: rgba(0, 255, 0, 0.2);
+            border-radius: 5px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #00ff00;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .menu-stats {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #004400;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 2rem;
+            min-width: 300px;
+        }
+        
+        .stats-title {
+            color: #00ff00;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            color: #88ff88;
+            font-size: 0.9rem;
+            margin: 0.3rem 0;
+        }
+        
+        .stat-value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+        
+        .menu-footer {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        
+        .floating-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ff00;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float-particle 10s infinite linear;
+        }
+        
+        @keyframes title-glow {
+            0%, 100% { text-shadow: 0 0 30px #00ff00, 0 0 60px #00ff00; }
+            50% { text-shadow: 0 0 40px #00ff00, 0 0 80px #00ff00, 0 0 120px #00ff00; }
+        }
+        
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(10px, 10px); }
+        }
+        
+        @keyframes float-particle {
+            0% { 
+                transform: translateY(100vh) translateX(0px);
+                opacity: 0;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { 
+                transform: translateY(-10px) translateX(50px);
+                opacity: 0;
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .menu-title {
+                font-size: 2.5rem;
+            }
+            
+            .menu-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .menu-button {
+                min-width: 200px;
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+            
+            .menu-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .option-group {
+                min-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="menu-container">
+        <!-- Animated background -->
+        <div class="menu-background"></div>
+        <div class="floating-particles" id="floating-particles"></div>
+        
+        <!-- Menu content -->
+        <div class="menu-title">DARK MATTER</div>
+        <div class="menu-subtitle">AI-Powered 3D Tower Defense</div>
+        
+        <!-- Main menu buttons -->
+        <div class="menu-buttons">
+            <button class="menu-button" id="start-game-btn">Start Game</button>
+            <button class="menu-button" id="continue-game-btn" disabled>Continue Game</button>
+            <button class="menu-button" id="multiplayer-btn">Multiplayer</button>
+            <button class="menu-button" id="settings-btn">Settings</button>
+            <button class="menu-button" id="credits-btn">Credits</button>
+        </div>
+        
+        <!-- Game options -->
+        <div class="menu-options">
+            <div class="option-group">
+                <div class="option-title">Game Settings</div>
+                <div class="option-control">
+                    <span class="option-label">Difficulty:</span>
+                    <select id="difficulty-select">
+                        <option value="easy">Easy</option>
+                        <option value="normal" selected>Normal</option>
+                        <option value="hard">Hard</option>
+                        <option value="nightmare">Nightmare</option>
+                    </select>
+                </div>
+                <div class="option-control">
+                    <span class="option-label">Level:</span>
+                    <input type="number" id="start-level" min="1" max="10" value="1">
+                </div>
+                <div class="option-control">
+                    <span class="option-label">AI Mode:</span>
+                    <select id="ai-mode-select">
+                        <option value="adaptive">Adaptive</option>
+                        <option value="aggressive">Aggressive</option>
+                        <option value="defensive">Defensive</option>
+                        <option value="random">Random</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <div class="option-title">Audio Settings</div>
+                <div class="option-control">
+                    <span class="option-label">Master:</span>
+                    <input type="range" id="master-volume" min="0" max="100" value="80">
+                    <span class="option-label" id="master-volume-display">80%</span>
+                </div>
+                <div class="option-control">
+                    <span class="option-label">Music:</span>
+                    <input type="range" id="music-volume" min="0" max="100" value="70">
+                    <span class="option-label" id="music-volume-display">70%</span>
+                </div>
+                <div class="option-control">
+                    <span class="option-label">SFX:</span>
+                    <input type="range" id="sfx-volume" min="0" max="100" value="85">
+                    <span class="option-label" id="sfx-volume-display">85%</span>
+                </div>
+            </div>
+            
+            <div class="option-group">
+                <div class="option-title">Graphics Settings</div>
+                <div class="option-control">
+                    <span class="option-label">Quality:</span>
+                    <select id="graphics-quality">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                        <option value="ultra">Ultra</option>
+                    </select>
+                </div>
+                <div class="option-control">
+                    <span class="option-label">Particles:</span>
+                    <select id="particle-quality">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="option-control">
+                    <span class="option-label">Shadows:</span>
+                    <select id="shadow-quality">
+                        <option value="off">Off</option>
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Player stats -->
+        <div class="menu-stats">
+            <div class="stats-title">Player Statistics</div>
+            <div class="stat-item">
+                <span>Games Played:</span>
+                <span class="stat-value" id="games-played">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Best Score:</span>
+                <span class="stat-value" id="best-score">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Highest Level:</span>
+                <span class="stat-value" id="highest-level">1</span>
+            </div>
+            <div class="stat-item">
+                <span>Total Enemies Defeated:</span>
+                <span class="stat-value" id="total-enemies">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Towers Built:</span>
+                <span class="stat-value" id="total-towers">0</span>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="menu-footer">
+            <div>Use WASD to move • Click to place towers • Space to pause</div>
+            <div>© 2024 DARK MATTER Team • Version 2.0.0</div>
+        </div>
+    </div>
+    
+    <script>
+        class GameMenu {
+            constructor() {
+                this.isVisible = true;
+                this.settings = {
+                    difficulty: 'normal',
+                    startLevel: 1,
+                    aiMode: 'adaptive',
+                    masterVolume: 0.8,
+                    musicVolume: 0.7,
+                    sfxVolume: 0.85,
+                    graphicsQuality: 'medium',
+                    particleQuality: 'medium',
+                    shadowQuality: 'medium'
+                };
+                
+                this.playerStats = {
+                    gamesPlayed: 0,
+                    bestScore: 0,
+                    highestLevel: 1,
+                    totalEnemies: 0,
+                    totalTowers: 0
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.loadSettings();
+                this.loadPlayerStats();
+                this.setupEventListeners();
+                this.createFloatingParticles();
+                this.updateUI();
+                this.checkSavedGame();
+            }
+            
+            loadSettings() {
+                const savedSettings = localStorage.getItem('darkMatterSettings');
+                if (savedSettings) {
+                    this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
+                }
+            }
+            
+            saveSettings() {
+                localStorage.setItem('darkMatterSettings', JSON.stringify(this.settings));
+            }
+            
+            loadPlayerStats() {
+                const savedStats = localStorage.getItem('darkMatterStats');
+                if (savedStats) {
+                    this.playerStats = { ...this.playerStats, ...JSON.parse(savedStats) };
+                }
+            }
+            
+            savePlayerStats() {
+                localStorage.setItem('darkMatterStats', JSON.stringify(this.playerStats));
+            }
+            
+            checkSavedGame() {
+                const savedGame = localStorage.getItem('darkMatterTowerDefense');
+                const continueBtn = document.getElementById('continue-game-btn');
+                
+                if (savedGame) {
+                    continueBtn.disabled = false;
+                    continueBtn.textContent = 'Continue Game';
+                } else {
+                    continueBtn.disabled = true;
+                    continueBtn.textContent = 'No Saved Game';
+                }
+            }
+            
+            setupEventListeners() {
+                // Main menu buttons
+                document.getElementById('start-game-btn').addEventListener('click', () => {
+                    this.startNewGame();
+                });
+                
+                document.getElementById('continue-game-btn').addEventListener('click', () => {
+                    this.continueGame();
+                });
+                
+                document.getElementById('multiplayer-btn').addEventListener('click', () => {
+                    this.showMultiplayerMenu();
+                });
+                
+                document.getElementById('settings-btn').addEventListener('click', () => {
+                    this.showSettingsMenu();
+                });
+                
+                document.getElementById('credits-btn').addEventListener('click', () => {
+                    this.showCredits();
+                });
+                
+                // Settings controls
+                document.getElementById('difficulty-select').addEventListener('change', (e) => {
+                    this.settings.difficulty = e.target.value;
+                    this.saveSettings();
+                });
+                
+                document.getElementById('start-level').addEventListener('change', (e) => {
+                    this.settings.startLevel = parseInt(e.target.value);
+                    this.saveSettings();
+                });
+                
+                document.getElementById('ai-mode-select').addEventListener('change', (e) => {
+                    this.settings.aiMode = e.target.value;
+                    this.saveSettings();
+                });
+                
+                // Volume controls
+                ['master', 'music', 'sfx'].forEach(type => {
+                    const slider = document.getElementById(`${type}-volume`);
+                    const display = document.getElementById(`${type}-volume-display`);
+                    
+                    slider.addEventListener('input', (e) => {
+                        const value = parseInt(e.target.value);
+                        this.settings[`${type}Volume`] = value / 100;
+                        display.textContent = value + '%';
+                        this.saveSettings();
+                        this.updateAudioSettings();
+                    });
+                });
+                
+                // Graphics controls
+                ['graphics-quality', 'particle-quality', 'shadow-quality'].forEach(setting => {
+                    document.getElementById(setting).addEventListener('change', (e) => {
+                        const key = setting.replace('-', '').replace('quality', 'Quality');
+                        this.settings[key] = e.target.value;
+                        this.saveSettings();
+                    });
+                });
+                
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (!this.isVisible) return;
+                    
+                    switch (e.code) {
+                        case 'Enter':
+                            e.preventDefault();
+                            this.startNewGame();
+                            break;
+                        case 'Escape':
+                            e.preventDefault();
+                            this.hide();
+                            break;
+                        case 'KeyC':
+                            if (!document.getElementById('continue-game-btn').disabled) {
+                                this.continueGame();
+                            }
+                            break;
+                        case 'KeyM':
+                            this.showMultiplayerMenu();
+                            break;
+                    }
+                });
+            }
+            
+            updateUI() {
+                // Update settings controls
+                document.getElementById('difficulty-select').value = this.settings.difficulty;
+                document.getElementById('start-level').value = this.settings.startLevel;
+                document.getElementById('ai-mode-select').value = this.settings.aiMode;
+                
+                // Update volume controls
+                document.getElementById('master-volume').value = this.settings.masterVolume * 100;
+                document.getElementById('master-volume-display').textContent = Math.round(this.settings.masterVolume * 100) + '%';
+                
+                document.getElementById('music-volume').value = this.settings.musicVolume * 100;
+                document.getElementById('music-volume-display').textContent = Math.round(this.settings.musicVolume * 100) + '%';
+                
+                document.getElementById('sfx-volume').value = this.settings.sfxVolume * 100;
+                document.getElementById('sfx-volume-display').textContent = Math.round(this.settings.sfxVolume * 100) + '%';
+                
+                // Update graphics controls
+                document.getElementById('graphics-quality').value = this.settings.graphicsQuality;
+                document.getElementById('particle-quality').value = this.settings.particleQuality;
+                document.getElementById('shadow-quality').value = this.settings.shadowQuality;
+                
+                // Update player stats
+                document.getElementById('games-played').textContent = this.playerStats.gamesPlayed;
+                document.getElementById('best-score').textContent = this.playerStats.bestScore.toLocaleString();
+                document.getElementById('highest-level').textContent = this.playerStats.highestLevel;
+                document.getElementById('total-enemies').textContent = this.playerStats.totalEnemies.toLocaleString();
+                document.getElementById('total-towers').textContent = this.playerStats.totalTowers.toLocaleString();
+            }
+            
+            createFloatingParticles() {
+                const container = document.getElementById('floating-particles');
+                
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 10 + 's';
+                    particle.style.animationDuration = (8 + Math.random() * 4) + 's';
+                    
+                    container.appendChild(particle);
+                }
+            }
+            
+            startNewGame() {
+                console.log('[MENU] Starting new game');
+                
+                // Apply settings to game
+                const gameSettings = {
+                    difficulty: this.settings.difficulty,
+                    startLevel: this.settings.startLevel,
+                    aiMode: this.settings.aiMode,
+                    audio: {
+                        master: this.settings.masterVolume,
+                        music: this.settings.musicVolume,
+                        sfx: this.settings.sfxVolume
+                    },
+                    graphics: {
+                        quality: this.settings.graphicsQuality,
+                        particles: this.settings.particleQuality,
+                        shadows: this.settings.shadowQuality
+                    }
+                };
+                
+                // Trigger game start event
+                window.dispatchEvent(new CustomEvent('startNewGame', { 
+                    detail: gameSettings 
+                }));
+                
+                this.hide();
+            }
+            
+            continueGame() {
+                console.log('[MENU] Continuing saved game');
+                
+                window.dispatchEvent(new CustomEvent('continueGame'));
+                this.hide();
+            }
+            
+            showMultiplayerMenu() {
+                console.log('[MENU] Showing multiplayer menu');
+                
+                // Create multiplayer submenu
+                const multiplayerMenu = document.createElement('div');
+                multiplayerMenu.innerHTML = `
+                    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; justify-content: center; align-items: center;">
+                        <div style="background: linear-gradient(135deg, #001122, #002244); border: 2px solid #00ff00; border-radius: 10px; padding: 2rem; max-width: 500px;">
+                            <h2 style="color: #00ff00; text-align: center; margin-bottom: 1rem;">Multiplayer Mode</h2>
+                            <div style="color: #88ff88; margin-bottom: 1rem;">
+                                <p>• Co-op Mode: Team up with friends to defend together</p>
+                                <p>• Versus Mode: Compete against other players</p>
+                                <p>• Spectator Mode: Watch other players' games</p>
+                            </div>
+                            <div style="display: flex; gap: 1rem; justify-content: center;">
+                                <button class="menu-button" onclick="this.parentElement.parentElement.parentElement.remove()">Back</button>
+                                <button class="menu-button" onclick="alert('Multiplayer coming soon!')">Join Game</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(multiplayerMenu);
+            }
+            
+            showSettingsMenu() {
+                console.log('[MENU] Settings menu already visible');
+                // Settings are already visible in the main menu
+            }
+            
+            showCredits() {
+                console.log('[MENU] Showing credits');
+                
+                const creditsMenu = document.createElement('div');
+                creditsMenu.innerHTML = `
+                    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: flex; justify-content: center; align-items: center; overflow-y: auto;">
+                        <div style="background: linear-gradient(135deg, #001122, #002244); border: 2px solid #00ff00; border-radius: 10px; padding: 2rem; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+                            <h2 style="color: #00ff00; text-align: center; margin-bottom: 1rem;">DARK MATTER Credits</h2>
+                            <div style="color: #88ff88; line-height: 1.6;">
+                                <h3 style="color: #00ff00;">Development Team</h3>
+                                <p>• Game Design & Programming: DARK MATTER Team</p>
+                                <p>• AI Systems: Advanced Machine Learning Division</p>
+                                <p>• 3D Graphics: Three.js Specialists</p>
+                                <p>• Audio Design: Spatial Audio Engineers</p>
+                                
+                                <h3 style="color: #00ff00;">Technologies Used</h3>
+                                <p>• Three.js - 3D Graphics Engine</p>
+                                <p>• Cannon.js - Physics Simulation</p>
+                                <p>• Howler.js - Audio Management</p>
+                                <p>• Socket.io - Multiplayer Networking</p>
+                                <p>• WebGL - Hardware Acceleration</p>
+                                
+                                <h3 style="color: #00ff00;">Special Thanks</h3>
+                                <p>• Beta Testers and Community</p>
+                                <p>• Open Source Contributors</p>
+                                <p>• AI Research Community</p>
+                                
+                                <div style="text-align: center; margin-top: 2rem; color: #666;">
+                                    <p>Version 2.0.0 - Enhanced Edition</p>
+                                    <p>© 2024 DARK MATTER Team</p>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 2rem;">
+                                <button class="menu-button" onclick="this.parentElement.parentElement.parentElement.remove()">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(creditsMenu);
+            }
+            
+            updateAudioSettings() {
+                // Notify audio system of volume changes
+                window.dispatchEvent(new CustomEvent('audioSettingsChanged', {
+                    detail: {
+                        master: this.settings.masterVolume,
+                        music: this.settings.musicVolume,
+                        sfx: this.settings.sfxVolume
+                    }
+                }));
+            }
+            
+            updatePlayerStats(stats) {
+                this.playerStats = { ...this.playerStats, ...stats };
+                this.savePlayerStats();
+                this.updateUI();
+            }
+            
+            show() {
+                const container = document.getElementById('menu-container');
+                container.classList.remove('hidden');
+                container.style.opacity = '1';
+                this.isVisible = true;
+                this.checkSavedGame();
+            }
+            
+            hide(callback) {
+                const container = document.getElementById('menu-container');
+                
+                container.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+                container.style.opacity = '0';
+                container.style.transform = 'scale(0.95)';
+                
+                setTimeout(() => {
+                    container.classList.add('hidden');
+                    this.isVisible = false;
+                    
+                    if (callback) callback();
+                }, 800);
+            }
+            
+            getSettings() {
+                return { ...this.settings };
+            }
+        }
+        
+        // Initialize game menu
+        const gameMenu = new GameMenu();
+        
+        // Make it globally accessible
+        window.darkMatterGameMenu = gameMenu;
+        
+        // Listen for game events
+        window.addEventListener('gameCompleted', (event) => {
+            const { score, level, enemiesDefeated, towersBuilt } = event.detail;
+            
+            gameMenu.updatePlayerStats({
+                gamesPlayed: gameMenu.playerStats.gamesPlayed + 1,
+                bestScore: Math.max(gameMenu.playerStats.bestScore, score),
+                highestLevel: Math.max(gameMenu.playerStats.highestLevel, level),
+                totalEnemies: gameMenu.playerStats.totalEnemies + enemiesDefeated,
+                totalTowers: gameMenu.playerStats.totalTowers + towersBuilt
+            });
+        });
+        
+        window.addEventListener('showGameMenu', () => {
+            gameMenu.show();
+        });
+    </script>
+</body>
+</html>
+

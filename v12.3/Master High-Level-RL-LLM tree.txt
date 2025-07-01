@@ -1,0 +1,213 @@
+project-root/
+├── core/
+│   ├── rl/
+│   │   ├── agents/
+│   │   ├── environments/
+│   │   ├── policies/
+│   │   ├── training/
+│   │   ├── curriculum/           # 🟩 Progressive scene definitions, task logic
+│   │   ├── reward_shaping/       # 🟩 Modular reward components
+│   │   ├── intent_handling/      # 🟩 User intent → agent goal translation
+│   │   └── parallel/             # 🟩 Multi-env and async support
+│   ├── llm/
+│   │   ├── prompts/
+│   │   ├── inference/
+│   │   ├── adapters/
+│   │   └── memory/
+│   └── utils/
+│       ├── data_processing.py
+│       ├── helper_functions.py
+│       ├── logging_config.py
+│       └── parallel_tools.py     # 🟩
+│
+├── plugins/
+│   ├── Decent_RL-LLM_Plugin/
+│   │   ├── README.md
+│   │   ├── src/
+│   │   ├── tests/
+│   │   ├── assets/
+│   │   └── manifests/
+│   ├── DARKMATTER_A/
+│   │   ├── README.md
+│   │   ├── src/
+│   │   ├── tests/
+│   │   ├── assets/
+│   │   └── manifests/
+│   ├── DARKMATTER_B/
+│   ├── DARKMATTER_C/
+│   ├── city_constitution/
+│   ├── emergency_response/
+│   ├── nft_creator_market/
+│   ├── secure_plugin_example/
+│   └── world_pulse_monitor/
+│
+├── 3d_engine/
+│   ├── engine/
+│   ├── rendering/
+│   ├── ui/
+│   ├── assets/
+│   ├── integration/
+│   │   └── fast_render_queue.py  # 🟩
+│
+├── nerf_integration/
+│   ├── systems/
+│   │   ├── NeRFSystem.ts
+│   │   ├── NeRFRenderer.ts
+│   │   ├── SceneCapture.ts
+│   │   └── VolumetricRenderer.ts
+│   ├── cuda/
+│   │   ├── CUDAManager.py
+│   │   ├── NeRFTrainer.py
+│   │   ├── kernels/
+│   │   │   ├── RayMarching.cu
+│   │   │   └── VolumeRenderer.cu
+│   │   └── utils/
+│   │       ├── cuda_utils.py
+│   │       └── memory_manager.py
+│   ├── components/
+│   │   ├── NeRFDashboard.tsx
+│   │   ├── TrainingMonitor.tsx
+│   │   ├── SceneViewer.tsx
+│   │   └── PerformanceMetrics.tsx
+│   ├── rl_integration/
+│   │   ├── NeRFRewardSystem.ts
+│   │   ├── SceneUnderstanding.ts
+│   │   ├── ActionEvaluation.ts
+│   │   └── VisualMemory.ts
+│   ├── config/
+│   │   ├── nerf_config.json
+│   │   ├── cuda_config.json
+│   │   └── training_config.json
+│   └── assets/
+│       ├── shaders/
+│       └── models/
+│
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   ├── synthetic/
+│   ├── logs/
+│   ├── checkpoints/
+│   ├── feedback/
+│   ├── error_reports/
+│   ├── exports/
+│   ├── outputs/
+│   ├── outputs/
+│   ├── models/
+│   ├── logs/
+│   ├── visualizations/
+│   ├── feedback/
+│   ├── checkpoints/
+│   ├── exports/
+│   ├── error_reports/
+│   ├── assets/
+│   │   └── nerf/
+│   ├── curriculum_scenes/        # 🟩 Progressive scene JSONs
+│   ├── user_prompts.json         # 🟩 Sample user intents
+│   └── benchmarks/
+│       └── human_reference_scenes/ # 🟩
+│
+├── scripts/
+│   ├── setup/
+│   ├── train/
+│   ├── eval/
+│   ├── deploy/
+│   ├── benchmark/
+│   ├── validation/
+│   ├── stress_test/
+│   ├── deploy_system.sh
+│   ├── run_tests.sh
+│   ├── run_training.sh
+│   └── patch_migrate.py      # 🟩 v12 helper
+│
+├── docs/
+│   ├── architecture/
+│   │   ├── api_reference.md
+│   │   ├── architecture.md
+│   │   ├── contributing.md
+│   │   └── setup_guide.md
+│   ├── research/
+│   │   ├── paper_1.pdf
+│   │   └── paper_2.pdf
+│   ├── api/
+│   ├── guides/
+│   ├── blueprints/
+│   ├── changelogs/
+│   │   ├── v8.2_patch_log.txt
+│   │   └── COLLABORATIVE_CHANGELOG_V8.1.md
+│   ├── design_docs/
+│   ├── patch_logs/
+│   ├── research_papers/
+│   ├── v12_patch_roadmap.md      # 🟩 (THIS DOCUMENT)
+│   ├── curriculum_design.md      # 🟩
+│   ├── reward_shaping.md         # 🟩
+│   ├── user_intent.md            # 🟩
+│   └── parallelization.md        # 🟩
+│
+├── tests/
+│   ├── unit/
+│   │   └── test_core_components.py
+│   ├── integration/
+│   │   └── test_system_integration.py
+│   ├── performance/
+│   │   └── test_performance.py
+│   ├── robustness/
+│   │   └── robustness_testing.py
+│   ├── test_curriculum.py        # 🟩
+│   ├── test_reward_shaping.py    # 🟩
+│   ├── test_user_intent.py       # 🟩
+│   └── test_parallel_executor.py # 🟩
+│
+├── toolkit/
+│   ├── cli/
+│   ├── viz/
+│   ├── preprocess/
+│   ├── gif_maker/
+│   ├── run_outputs/
+│   ├── agent_progress.gif
+│   ├── config_manager.sh
+│   ├── demo_run.sh
+│   ├── make_gif.py
+│   ├── README.md
+│   ├── stress_test.sh
+│   └── USER_GUIDE.md
+│
+├── visualization/
+│   ├── dashboards/
+│   │   └── main_dashboard.py
+│   ├── reporting/
+│   │   └── report_generator.py
+│   └── manager/
+│       └── visualization_manager.py
+│
+├── hitl/
+│   ├── feedback_manager/
+│   │   └── hitl_feedback_manager.py
+│   ├── cli_interface/
+│   │   └── cli.py
+│   ├── web_interface/
+│   │   └── app.py
+│   └── assets/
+│
+├── config/
+│   ├── curriculum.json
+│   ├── hitl.json
+│   ├── nerf.json
+│   ├── replay.json
+│   ├── reward.json
+│   ├── robustness.json
+│   ├── system.json
+│   ├── training.json
+│   ├── visualization.json
+│   ├── *.json
+│   ├── *.yaml
+│   └── env/
+│       └── .env
+│
+├── .github/
+│
+├── .gitignore
+├── README.md
+├── LICENSE
+├── requirements.txt
+└── MANIFEST.in

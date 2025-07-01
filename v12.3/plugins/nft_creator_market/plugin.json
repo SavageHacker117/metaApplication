@@ -1,0 +1,11 @@
+{
+  "name": "nft_creator_market",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "nft.py",
+  "description": "Optional NFT minting and marketplace plugin. Mint, list, and sell in-game or world-generated assets. Open-source or closed, your call.",
+  "type": "nft+marketplace",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["mint_nft", "list_nft", "sell_nft", "marketplace_status"],
+  "ui": ["nft_panel.html", "nft_panel.js"]
+}

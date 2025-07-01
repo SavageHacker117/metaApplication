@@ -1,0 +1,244 @@
+{
+  "version": "5.0.0-beta1",
+  "description": "RL Training System Version 5 BETA 1 Configuration",
+  "last_updated": "2024-12-19",
+  
+  "training": {
+    "episodes": 10000,
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "gamma": 0.99,
+    "epsilon_start": 1.0,
+    "epsilon_end": 0.01,
+    "epsilon_decay": 0.995,
+    "target_update_frequency": 10,
+    "save_frequency": 100,
+    "evaluation_frequency": 500,
+    "max_episode_steps": 1000,
+    "early_stopping_patience": 1000,
+    "gradient_clipping": 1.0,
+    "weight_decay": 1e-4
+  },
+  
+  "nerf": {
+    "enabled": true,
+    "asset_directory": "assets/nerf_v5",
+    "max_assets_per_episode": 5,
+    "diversity_bonus_weight": 0.2,
+    "correlation_tracking": true,
+    "dynamic_selection": true,
+    "asset_cache_size": 100,
+    "preload_assets": true,
+    "fallback_assets": ["default_tower", "default_enemy", "default_terrain"],
+    "asset_rotation_enabled": true,
+    "quality_threshold": 0.8
+  },
+  
+  "reward": {
+    "base_reward_weight": 1.0,
+    "nerf_reward_weight": 0.3,
+    "diversity_bonus_weight": 0.2,
+    "success_bonus": 10.0,
+    "failure_penalty": -5.0,
+    "step_penalty": -0.01,
+    "efficiency_bonus_weight": 0.1,
+    "anti_hacking_enabled": true,
+    "reward_clipping": [-100.0, 100.0],
+    "reward_normalization": true,
+    "adaptive_scaling": true
+  },
+  
+  "curriculum": {
+    "enabled": true,
+    "initial_difficulty": 0.1,
+    "max_difficulty": 1.0,
+    "adaptation_rate": 0.05,
+    "performance_window": 50,
+    "success_threshold": 0.7,
+    "difficulty_increase_threshold": 0.8,
+    "difficulty_decrease_threshold": 0.4,
+    "min_episodes_per_difficulty": 20,
+    "curriculum_stages": [
+      {"difficulty": 0.1, "description": "Basic tower placement"},
+      {"difficulty": 0.3, "description": "Multiple enemy types"},
+      {"difficulty": 0.5, "description": "Resource management"},
+      {"difficulty": 0.7, "description": "Advanced strategies"},
+      {"difficulty": 1.0, "description": "Expert level"}
+    ]
+  },
+  
+  "replay_buffer": {
+    "max_episodes": 10000,
+    "max_memory_mb": 1000,
+    "compression_enabled": true,
+    "compression_threshold": 1000,
+    "default_sampling_strategy": "priority",
+    "priority_alpha": 0.6,
+    "priority_beta": 0.4,
+    "curriculum_weight": 0.3,
+    "diversity_weight": 0.2,
+    "batch_size": 32,
+    "prefetch_size": 64,
+    "async_loading": true,
+    "auto_cleanup": true,
+    "cleanup_threshold": 0.9
+  },
+  
+  "hitl": {
+    "enabled": true,
+    "feedback_frequency": 20,
+    "rating_scale": 10,
+    "timeout_seconds": 30,
+    "web_interface_port": 5001,
+    "cli_enabled": true,
+    "auto_feedback": false,
+    "feedback_storage_path": "feedback_v5",
+    "feedback_aggregation": "weighted_average",
+    "min_feedback_confidence": 0.7,
+    "feedback_decay_rate": 0.95,
+    "expert_feedback_weight": 2.0,
+    "feedback_categories": [
+      "strategy_quality",
+      "resource_efficiency", 
+      "tactical_decisions",
+      "overall_performance"
+    ]
+  },
+  
+  "visualization": {
+    "enabled": true,
+    "dashboard_port": 5002,
+    "tensorboard_enabled": true,
+    "tensorboard_log_dir": "logs_v5/tensorboard",
+    "wandb_enabled": false,
+    "wandb_project": "rl-training-v5",
+    "gif_generation": true,
+    "gif_fps": 10,
+    "gif_duration": 5.0,
+    "image_grid_frequency": 100,
+    "plot_generation_frequency": 200,
+    "dashboard_update_interval": 2.0,
+    "dashboard_history_length": 1000,
+    "max_concurrent_renders": 4,
+    "cache_size": 100,
+    "async_rendering": true,
+    "output_directory": "visualizations_v5"
+  },
+  
+  "robustness": {
+    "enabled": true,
+    "error_testing_enabled": true,
+    "fault_injection": false,
+    "test_frequency": 100,
+    "health_monitoring": true,
+    "emergency_save_frequency": 50,
+    "memory_threshold_mb": 8000,
+    "memory_critical_mb": 12000,
+    "memory_check_interval": 30.0,
+    "cuda_memory_threshold": 0.9,
+    "cuda_oom_recovery_attempts": 3,
+    "max_recovery_attempts": 5,
+    "recovery_timeout": 60.0,
+    "health_check_interval": 60.0,
+    "performance_degradation_threshold": 0.5,
+    "detailed_error_logging": true,
+    "error_report_path": "error_reports_v5",
+    "max_error_history": 1000
+  },
+  
+  "output": {
+    "base_directory": "outputs_v5",
+    "models_directory": "models_v5", 
+    "logs_directory": "logs_v5",
+    "visualizations_directory": "visualizations_v5",
+    "feedback_directory": "feedback_v5",
+    "checkpoints_directory": "checkpoints_v5",
+    "exports_directory": "exports_v5",
+    "model_format": "pytorch",
+    "compression_enabled": true,
+    "backup_frequency": 1000,
+    "max_backups": 10
+  },
+  
+  "environment": {
+    "name": "TowerDefenseEnv-v5",
+    "render_mode": "rgb_array",
+    "max_episode_steps": 1000,
+    "reward_threshold": 500.0,
+    "observation_space_type": "box",
+    "action_space_type": "discrete",
+    "frame_stack": 4,
+    "frame_skip": 1,
+    "grayscale": false,
+    "resize_observation": [84, 84],
+    "normalize_observations": true
+  },
+  
+  "model": {
+    "architecture": "DQN",
+    "network_type": "CNN",
+    "hidden_layers": [512, 256, 128],
+    "activation": "relu",
+    "dropout_rate": 0.1,
+    "batch_normalization": true,
+    "dueling_network": true,
+    "double_dqn": true,
+    "prioritized_replay": true,
+    "noisy_networks": false,
+    "rainbow_features": true
+  },
+  
+  "optimization": {
+    "optimizer": "Adam",
+    "learning_rate_schedule": "cosine_annealing",
+    "lr_scheduler_params": {
+      "T_max": 1000,
+      "eta_min": 1e-6
+    },
+    "gradient_clipping": 1.0,
+    "weight_decay": 1e-4,
+    "momentum": 0.9,
+    "eps": 1e-8,
+    "amsgrad": false
+  },
+  
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file_logging": true,
+    "console_logging": true,
+    "log_file": "logs_v5/training.log",
+    "max_log_size_mb": 100,
+    "backup_count": 5,
+    "log_rotation": true
+  },
+  
+  "system": {
+    "device": "auto",
+    "num_workers": 4,
+    "pin_memory": true,
+    "persistent_workers": true,
+    "prefetch_factor": 2,
+    "multiprocessing_context": "spawn",
+    "seed": 42,
+    "deterministic": false,
+    "benchmark": true
+  },
+  
+  "experimental": {
+    "features": {
+      "multi_agent_training": false,
+      "distributed_training": false,
+      "quantum_enhanced_training": false,
+      "neuromorphic_computing": false,
+      "advanced_hitl_modalities": false
+    },
+    "beta_features": {
+      "voice_feedback": false,
+      "gesture_recognition": false,
+      "eye_tracking": false,
+      "brain_computer_interface": false
+    }
+  }
+}
+

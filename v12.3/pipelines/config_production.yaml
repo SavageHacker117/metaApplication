@@ -1,0 +1,51 @@
+training:
+  max_episodes: 50000
+  max_steps_per_episode: 1000
+  batch_size: 64
+  learning_rate: 0.0001
+  gamma: 0.99
+  num_parallel_envs: 16
+  use_vectorized_env: true
+  use_mixed_precision: true
+  gradient_clipping: 1.0
+  checkpoint_frequency: 1000
+  auto_resume: true
+  checkpoint_dir: "checkpoints_prod"
+
+environment:
+  grid_size: [15, 15]
+  max_towers: 50
+  max_enemies: 100
+  enemy_spawn_rate: 0.05
+  tower_types: ["basic", "cannon", "archer", "laser", "missile"]
+
+render:
+  width: 1024
+  height: 768
+  use_headless_gpu: true
+  enable_context_pool: true
+  pool_size: 8
+  render_timeout: 30.0
+  enable_mock_renderer: false
+  mock_render_probability: 0.0
+
+reward:
+  gameplay_weight: 0.4
+  visual_quality_weight: 0.2
+  code_quality_weight: 0.2
+  performance_weight: 0.2
+  enable_diversity_bonus: true
+  diversity_threshold: 0.9
+  penalty_for_repetition: -0.05
+
+logging:
+  level: "INFO"
+  log_dir: "logs_prod"
+  enable_tensorboard: true
+  enable_wandb: true
+  log_frequency: 100
+  save_logs: true
+
+config_version: "3.0.0"
+environment_name: "production"
+

@@ -1,0 +1,102 @@
+Let’s make it crystal clear:
+RUBY’s “Two-State” World: GREEN and BLUE
+GREEN STATE:
+The “live,” canonical, production world.
+Everything here is proven, safe, and user/AI tested.
+No changes reach green unless they’re vetted, simulated, or proven not to harm the experience, assets, or community.
+
+BLUE STATE:
+The “sandbox,” staging, or hypothetical world.
+All new code, events, LLM/AI experiments, and user-generated actions run first here, in parallel.
+AI and users can freely generate, mutate, destroy, or prototype anything in BLUE.
+When a BLUE-state action is ready, only then is it eligible for promotion/merge to GREEN.
+
+This is the secret sauce for:
+Zero-downtime, crash-proof, hack-proof, grief-proof world management
+
+AI safety and alignment: Only promote “known good” outputs
+
+Infinite creative iteration, no user risk
+
+Time travel/rollback and “undo” at any scale
+
+How it works (keystone pattern):
+All proposed changes (AI or user):
+
+Go to BLUE first (world, region, plugin, event, or agent scope).
+
+Fully simulated in isolation from the live environment.
+
+Stress-tested for bugs, security, fun, fairness, and performance.
+
+AI & automated checks:
+
+Monitor for failures, exploits, or “griefing.”
+
+Apply “policy guardrails” (from your city_constitution plugin).
+
+Provide auto-generated risk/conflict summaries to admins/users.
+
+User/Admin Approval or AI-Auto-Promotion:
+
+Only when the change is “known good” (or voted/approved) is it merged to GREEN.
+
+Merges can be instant, gradual (shadow), or scheduled.
+
+If the BLUE state “blows up,” GREEN is untouched.
+
+Rollbacks, roll-forwards, and “try again” are seamless.
+
+BLUE can be forked, re-simulated, or fully wiped at any time.
+
+Technical Blueprint for RUBY Two-State Engine:
+File/World Structure
+bash
+Copy
+Edit
+/worlds/
+  ├── earth_green.rstate   # Current production world
+  ├── earth_blue.rstate    # Proposed/future/sandbox state (clone/fork)
+  ├── ... (other worlds)
+Key APIs
+engine.propose_change(change, scope="blue") — Apply to blue, not green.
+
+engine.validate_blue() — Run all tests, AI scans, policy checks.
+
+engine.promote_blue_to_green() — Merge blue to green if approved.
+
+engine.diff_states() — Show differences, risks, and conflicts.
+
+Plugin Example:
+python
+Copy
+Edit
+def propose_npc(pluginAPI, npc_config):
+    pluginAPI.engine.apply_to_state('blue', lambda state: state.spawn_npc(npc_config))
+    print("[RUBY] NPC proposed in BLUE state.")
+
+def approve_blue(pluginAPI):
+    # Run validators, security, etc.
+    if pluginAPI.engine.validate_blue():
+        pluginAPI.engine.promote_blue_to_green()
+        print("[RUBY] BLUE promoted to GREEN!")
+    else:
+        print("[RUBY] BLUE state failed validation.")
+User Flow Example
+Create or modify world, agent, code, or event in BLUE.
+
+Preview, test, and review (AI can “sandbox play” the change).
+
+Approve (human or AI, or both).
+
+Only then does the GREEN state change.
+
+Why this works (and why it’s essential):
+Never risk the live world with untested code or AI experiments.
+
+Users and AIs get unlimited creative freedom—without “breaking” the world.
+
+You gain easy time travel, “parallel universe” previews, and fully automated rollbacks.
+
+You can deploy new plugins, policies, AI agents, even city constitutions without downtime or drama.
+

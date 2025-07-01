@@ -1,0 +1,130 @@
+added: RUBY/QUICK_START.md
+added: RUBY/README.md
+added: RUBY/RUBY V8 Framework FileFolder Structure.txt
+added: RUBY/main.py
+added: RUBY/requirements.txt
+added: RUBY/setup.py
+added: RUBY/test_integration.py
+added: RUBY/8.1/README.md
+added: RUBY/8.1/backend/model_3d_generator.py
+added: RUBY/8.1/backend/requirements.txt
+added: RUBY/8.1/backend/server_v6_2.py
+added: RUBY/8.1/frontend/app.js
+added: RUBY/8.1/frontend/index.html
+added: RUBY/8.1/frontend/README.md
+added: RUBY/8.1/shared/protocol.md
+added: RUBY/_1/.gitkeep
+added: RUBY/_1/async_rendering_pipeline.py
+added: RUBY/_1/async_rendering_pipeline_enhanced.py
+added: RUBY/_1/comprehensive_validation.py
+added: RUBY/_1/config_development.yaml
+added: RUBY/_1/config_production.yaml
+added: RUBY/_1/DOCUMENTATION_V3.md
+added: RUBY/_1/enhanced_config_manager.py
+added: RUBY/_1/enhanced_integration_script.py
+added: RUBY/_1/enhanced_test_framework.py
+added: RUBY/_1/integration_test.py
+added: RUBY/_1/nerf_agent_extensions.py
+added: RUBY/_1/nerf_asset_management.py
+added: RUBY/_1/nerf_integration_module.py
+added: RUBY/_1/nerf_performance_testing.py
+added: RUBY/_1/nerf_validation.py
+added: RUBY/_1/NNeededChanges.txt
+added: RUBY/_1/PROJECT_SUMMARY.md
+added: RUBY/_1/PROJECT_SUMMARY_V3.md
+added: RUBY/_1/README_FINAL.md
+added: RUBY/_1/reward_system.py
+added: RUBY/_1/reward_system_enhanced.py
+added: RUBY/_1/RL Training Script for Procedural Tower Defense Game v3 - Project Summary.md
+added: RUBY/_1/RL Training Script for Procedural Tower Defense Game v3.md
+added: RUBY/_1/RL Training Script v3 - Final Delivery Summary.md
+added: RUBY/_1/RL Training Script v3 with NeRF Integration - Final Release.md
+added: RUBY/_1/RL Training Script v3 with NeRF Integration - Package Manifest.md
+added: RUBY/_1/rl_training_v3_final.tar.gz
+added: RUBY/_1/rl_training_v3_final_with_nerf.zip
+added: RUBY/_1/RLTrainingScriptforProceduralTowerDefenseGamev2.zip
+added: RUBY/_1/simplified_validation.py
+added: RUBY/_1/threejs_nerf_integration.js
+added: RUBY/_1/threejs_renderer.py
+added: RUBY/_1/threejs_renderer_enhanced.py
+added: RUBY/_1/todo_improvements.md
+added: RUBY/_1/training_loop.py
+added: RUBY/_1/training_loop_enhanced.py
+added: RUBY/_1/transformer_agent.py
+added: RUBY/_1/transformer_agent_enhanced.py
+added: RUBY/_1/visual_assessment_gpu.py
+added: RUBY/_1/visual_assessment_gpu_enhanced.py
+added: RUBY/_1/README_V8.1.md
+added: RUBY/_1/README6.md
+added: RUBY/config/training.json
+added: RUBY/core/curriculum_learning.py
+added: RUBY/core/New Text Document.txt
+added: RUBY/core/plugin_loader.py
+added: RUBY/core/replay_buffer.py
+added: RUBY/core/two_state.py
+added: RUBY/core/nerf_integration.py
+added: RUBY/core/reward_system.py
+added: RUBY/core/training_loop.py
+added: RUBY/docs/AI_MANIFESTO.md
+added: RUBY/docs/DOCS_INDEX.md
+added: RUBY/docs/ENGINE_FABRIC_BLUEPRINT.md
+added: RUBY/docs/FABRIC_OBJECT_TIMELINE.md
+added: RUBY/docs/FINAL_DELIVERY_SUMMARY.md
+added: RUBY/docs/INWORLD_DEV_SUITE_UI.md
+added: RUBY/docs/LEGACY_RFE_COMBO_NOTES.md
+added: RUBY/docs/nation-state-level NeRF-powered simulation engine.txt
+added: RUBY/docs/PACKAGE_MANIFEST.md
+added: RUBY/docs/PLUGIN_EXTENSION_TEMPLATE.md
+added: RUBY/docs/PLUGIN_INTEROP.md
+added: RUBY/docs/Prompt for green_blue_states.txt
+added: RUBY/docs/README.md
+added: RUBY/docs/RealisFabricEngine.MD
+added: RUBY/docs/REALITY_WEAVING_COOKBOOK.md
+added: RUBY/docs/rfe_vision_8_sprint_guide.md
+added: RUBY/docs/RUBY_FRAMEWORK.md
+added: RUBY/docs/set of advanced plugin templates for the RUBY.txt
+added: RUBY/docs/SPRINT_EXPANSION_GUIDE.md
+added: RUBY/docs/tesseract_injection_project_files.md
+added: RUBY/docs/three advanced plugin templates for the RUBY engine.txt
+added: RUBY/docs/turnkey set of plugin templates.txt
+added: RUBY/docs/World-Scale, NeRF-Driven 3D Engine Blueprint.txt
+added: RUBY/docs/COLLABORATIVE_CHANGELOG_V8.1.md
+added: RUBY/docs/PROJECT_SUMMARY_V8.md
+added: RUBY/hitl/hitl_cli_tool.py
+added: RUBY/hitl/hitl_feedback_manager.py
+added: RUBY/plugins/city_constitution/constitution.py
+added: RUBY/plugins/city_constitution/constitution_panel.html
+added: RUBY/plugins/city_constitution/constitution_panel.js
+added: RUBY/plugins/city_constitution/plugin.json
+added: RUBY/plugins/emergency_response/emergency.py
+added: RUBY/plugins/emergency_response/emergency_panel.html
+added: RUBY/plugins/emergency_response/emergency_panel.js
+added: RUBY/plugins/emergency_response/plugin.json
+added: RUBY/plugins/nft_creator_market/nft.py
+added: RUBY/plugins/nft_creator_market/nft_panel.html
+added: RUBY/plugins/nft_creator_market/nft_panel.js
+added: RUBY/plugins/nft_creator_market/plugin.json
+added: RUBY/plugins/nft_creator_market/README.MD
+added: RUBY/plugins/secure_plugin_example/plugin.json
+added: RUBY/plugins/secure_plugin_example/secure.py
+added: RUBY/plugins/world_pulse_monitor/plugin.json
+added: RUBY/plugins/world_pulse_monitor/pulse.py
+added: RUBY/plugins/world_pulse_monitor/pulse_panel.html
+added: RUBY/plugins/world_pulse_monitor/pulse_panel.js
+added: RUBY/ruby_engine/blue_green_panel.html
+added: RUBY/ruby_engine/blue_green_panel.js
+added: RUBY/tests/robustness_testing.py
+added: RUBY/toolkit/agent_progress.gif
+added: RUBY/toolkit/config_manager.sh
+added: RUBY/toolkit/demo_run.sh
+added: RUBY/toolkit/enhanced_integration_script.py
+added: RUBY/toolkit/make_gif.py
+added: RUBY/toolkit/README.md
+added: RUBY/toolkit/stress_test.sh
+added: RUBY/toolkit/USER_GUIDE.md
+added: RUBY/toolkit/output_20250625_144445/run.log
+added: RUBY/toolkit/output_20250625_144522/run.log
+added: RUBY/toolkit/output_20250625_144609/run.log
+added: RUBY/toolkit/output_test/render_000.png
+added: RUBY/toolkit/output_test/render_001.png
+added: RUBY/visualization/visualization_manager.py

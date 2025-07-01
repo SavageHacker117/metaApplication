@@ -1,0 +1,58 @@
+{
+  "name": "threejs_enhanced_tower_defense",
+  "version": "2.0.0",
+  "author": "DARK MATTER Team",
+  "entry": "enhanced_tower_defense.js",
+  "description": "Full-featured AI-powered 3D tower defense game with advanced loading screens, game states, procedural generation, and multiplayer support",
+  "type": "game",
+  "compatibleWith": ["DARKMATTER>=8.2.0"],
+  "exposes": [
+    "initGame",
+    "startLoadingScreen", 
+    "showGameMenu",
+    "startLevel",
+    "spawnWave",
+    "pauseGame",
+    "resetGame",
+    "getGameStats",
+    "saveGameState",
+    "loadGameState",
+    "enableMultiplayer",
+    "setDifficulty"
+  ],
+  "dependencies": [
+    "three.js",
+    "cannon.js",
+    "howler.js",
+    "socket.io-client"
+  ],
+  "ui": [
+    "loading_screen.html",
+    "game_menu.html", 
+    "hud.html",
+    "game_over.html",
+    "loading_screen.js",
+    "game_menu.js",
+    "hud.js",
+    "game_over.js"
+  ],
+  "assets": [
+    "models/",
+    "textures/",
+    "audio/",
+    "shaders/"
+  ],
+  "features": [
+    "AI-powered enemy behavior",
+    "Procedural path generation",
+    "Dynamic loading screens with particle effects",
+    "State machine architecture",
+    "Boss battles with multiple phases",
+    "Multiplayer co-op and versus modes",
+    "Advanced particle systems",
+    "Spatial audio system",
+    "Performance optimization",
+    "Cross-browser compatibility"
+  ]
+}
+

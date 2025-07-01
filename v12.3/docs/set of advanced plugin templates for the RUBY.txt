@@ -1,0 +1,323 @@
+A. Physics Plugin (Gravity, Collision, etc.)
+plugins/physics_engine/plugin.json
+
+json
+Copy
+Edit
+{
+  "name": "physics_engine",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "main.py",
+  "description": "Pluggable physics engine for world: gravity, collision, soft body.",
+  "type": "physics",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["apply_physics", "set_gravity", "add_force"],
+  "ui": ["physics_panel.html", "physics_panel.js"]
+}
+plugins/physics_engine/main.py
+
+python
+Copy
+Edit
+class RUBYPhysics:
+    def __init__(self, engine):
+        self.engine = engine
+        self.gravity = [0, -9.8, 0]
+
+    def set_gravity(self, g):
+        self.gravity = g
+        print(f"[RUBY] Physics gravity set to {g}")
+
+    def apply_physics(self, timestep=0.016):
+        # Simple gravity and collision placeholder
+        for obj in self.engine.world.objects:
+            if hasattr(obj, "velocity"):
+                obj.velocity[1] += self.gravity[1] * timestep
+                obj.position[1] += obj.velocity[1] * timestep
+                if obj.position[1] < 0:  # Ground collision
+                    obj.position[1] = 0
+                    obj.velocity[1] = 0
+
+    def add_force(self, obj, force):
+        if hasattr(obj, "velocity"):
+            for i in range(3):
+                obj.velocity[i] += force[i]
+            print(f"[RUBY] Added force {force} to {obj}")
+
+def register(pluginAPI):
+    physics = RUBYPhysics(pluginAPI.engine)
+    pluginAPI.provide("set_gravity", physics.set_gravity)
+    pluginAPI.provide("apply_physics", physics.apply_physics)
+    pluginAPI.provide("add_force", physics.add_force)
+    print("[RUBY] physics_engine plugin registered.")
+plugins/physics_engine/physics_panel.html
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RUBY Physics Panel</title>
+    <style>body { background:#282828; color:#fff; font-family:monospace; }</style>
+</head>
+<body>
+    <h2>Physics Engine Control</h2>
+    <label>Gravity Y <input type="number" id="gravityY" value="-9.8"></label>
+    <button id="setGravityBtn">Set Gravity</button>
+    <script src="physics_panel.js"></script>
+</body>
+</html>
+plugins/physics_engine/physics_panel.js
+
+javascript
+Copy
+Edit
+document.getElementById('setGravityBtn').onclick = function() {
+    let g = parseFloat(document.getElementById('gravityY').value);
+    if(window.rubyEngine) window.rubyEngine.plugins.physics_engine.set_gravity([0, g, 0]);
+};
+B. Agent NPCs Plugin (AI Characters with RL/LLM Logic)
+plugins/agent_npc/plugin.json
+
+json
+Copy
+Edit
+{
+  "name": "agent_npc",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "npc_agent.py",
+  "description": "AI-driven NPC agent plugin, supports RL/LLM logic and world actions.",
+  "type": "agent",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["spawn_npc", "set_behavior", "npc_speak"],
+  "ui": ["npc_panel.html", "npc_panel.js"]
+}
+plugins/agent_npc/npc_agent.py
+
+python
+Copy
+Edit
+class AgentNPC:
+    def __init__(self, name, position=[0,0,0], brain="rl"):
+        self.name = name
+        self.position = position
+        self.brain_type = brain
+        self.memory = []
+        print(f"[RUBY] NPC {name} spawned at {position} with {brain} brain.")
+
+    def set_behavior(self, behavior):
+        self.brain_type = behavior
+        print(f"[RUBY] {self.name} switched behavior to {behavior}")
+
+    def npc_speak(self, phrase):
+        print(f"{self.name} says: {phrase}")
+        return phrase
+
+def spawn_npc(engine, name="RUBYNPC", position=[0,0,0], brain="llm"):
+    npc = AgentNPC(name, position, brain)
+    engine.world.add_npc(npc)
+    return npc
+
+def register(pluginAPI):
+    pluginAPI.provide("spawn_npc", spawn_npc)
+    pluginAPI.provide("set_behavior", AgentNPC.set_behavior)
+    pluginAPI.provide("npc_speak", AgentNPC.npc_speak)
+    print("[RUBY] agent_npc plugin registered.")
+plugins/agent_npc/npc_panel.html
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RUBY Agent NPC Panel</title>
+    <style>body { background:#333; color:#fff; font-family:monospace; }</style>
+</head>
+<body>
+    <h2>Spawn Agent NPC</h2>
+    <label>Name <input id="npcName" value="RUBYNPC"></label>
+    <label>Brain <select id="brain"><option>llm</option><option>rl</option></select></label>
+    <button id="spawnBtn">Spawn</button>
+    <script src="npc_panel.js"></script>
+</body>
+</html>
+plugins/agent_npc/npc_panel.js
+
+javascript
+Copy
+Edit
+document.getElementById('spawnBtn').onclick = function() {
+    let name = document.getElementById('npcName').value;
+    let brain = document.getElementById('brain').value;
+    if(window.rubyEngine) window.rubyEngine.plugins.agent_npc.spawn_npc(name, [0,0,0], brain);
+};
+C. Live RL Debugging Plugin (Python + JS UI)
+plugins/rl_debugger/plugin.json
+
+json
+Copy
+Edit
+{
+  "name": "rl_debugger",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "debugger.py",
+  "description": "Real-time RL agent monitor, action/reward/state inspector, with UI.",
+  "type": "debugger",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["log_step", "view_state", "reset_agent"],
+  "ui": ["debug_panel.html", "debug_panel.js"]
+}
+plugins/rl_debugger/debugger.py
+
+python
+Copy
+Edit
+class RLDebugger:
+    def __init__(self, engine):
+        self.engine = engine
+        self.steps = []
+
+    def log_step(self, obs, action, reward, done):
+        entry = {
+            "obs": obs, "action": action, "reward": reward, "done": done
+        }
+        self.steps.append(entry)
+        print(f"[RUBY][RL-DBG] Step logged: {entry}")
+
+    def view_state(self, step_idx=-1):
+        if self.steps:
+            return self.steps[step_idx]
+        return None
+
+    def reset_agent(self):
+        self.steps = []
+        print("[RUBY][RL-DBG] Agent log reset.")
+
+def register(pluginAPI):
+    dbg = RLDebugger(pluginAPI.engine)
+    pluginAPI.provide("log_step", dbg.log_step)
+    pluginAPI.provide("view_state", dbg.view_state)
+    pluginAPI.provide("reset_agent", dbg.reset_agent)
+    print("[RUBY] rl_debugger plugin registered.")
+plugins/rl_debugger/debug_panel.html
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RUBY RL Debug Panel</title>
+    <style>body { background:#171717; color:#90ff90; font-family:monospace; }</style>
+</head>
+<body>
+    <h2>RL Debugger</h2>
+    <div id="logArea"></div>
+    <button id="viewBtn">View Last Step</button>
+    <button id="resetBtn">Reset Log</button>
+    <script src="debug_panel.js"></script>
+</body>
+</html>
+plugins/rl_debugger/debug_panel.js
+
+javascript
+Copy
+Edit
+document.getElementById('viewBtn').onclick = function() {
+    // Simulated UI, real would fetch via engine API
+    let msg = "[RL-DBG] Last step: obs/action/reward";
+    document.getElementById('logArea').innerHTML += `<div>${msg}</div>`;
+};
+document.getElementById('resetBtn').onclick = function() {
+    document.getElementById('logArea').innerHTML += `<div>Log Reset</div>`;
+};
+D. Procedural City Builder Plugin (Python + JS UI)
+plugins/procedural_city/plugin.json
+
+json
+Copy
+Edit
+{
+  "name": "procedural_city",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "city_builder.py",
+  "description": "Procedural city generator with timeline and style mutation support.",
+  "type": "generator",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["build_city", "morph_city", "branch_city"],
+  "ui": ["city_panel.html", "city_panel.js"]
+}
+plugins/procedural_city/city_builder.py
+
+python
+Copy
+Edit
+import random
+
+def build_city(engine, size=10, seed=None):
+    if seed:
+        random.seed(seed)
+    city = []
+    for i in range(size):
+        building = {
+            "id": f"building_{i}",
+            "x": random.randint(0, size*10),
+            "y": 0,
+            "z": random.randint(0, size*10),
+            "height": random.randint(10, 100)
+        }
+        city.append(building)
+    engine.world.add_city(city)
+    print(f"[RUBY] Built city with {size} buildings.")
+    return city
+
+def morph_city(engine, style="futurist", timeline_point=None):
+    print(f"[RUBY] Morphing city to style: {style} at {timeline_point}")
+    # Real engine would mutate building shapes/materials with AI
+
+def branch_city(engine, from_point):
+    print(f"[RUBY] City timeline branched from: {from_point}")
+    # Real implementation would duplicate city state/timeline
+
+def register(pluginAPI):
+    pluginAPI.provide("build_city", build_city)
+    pluginAPI.provide("morph_city", morph_city)
+    pluginAPI.provide("branch_city", branch_city)
+    print("[RUBY] procedural_city plugin registered.")
+plugins/procedural_city/city_panel.html
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RUBY City Builder</title>
+    <style>body { background:#202025; color:#ffec82; font-family:monospace; }</style>
+</head>
+<body>
+    <h2>Procedural City Builder</h2>
+    <label>Size <input type="number" id="citySize" value="10"></label>
+    <button id="buildBtn">Build City</button>
+    <button id="morphBtn">Morph City</button>
+    <script src="city_panel.js"></script>
+</body>
+</html>
+plugins/procedural_city/city_panel.js
+
+javascript
+Copy
+Edit
+document.getElementById('buildBtn').onclick = function() {
+    let sz = parseInt(document.getElementById('citySize').value);
+    if(window.rubyEngine) window.rubyEngine.plugins.procedural_city.build_city(sz);
+};
+document.getElementById('morphBtn').onclick = function() {
+    if(window.rubyEngine) window.rubyEngine.plugins.procedural_city.morph_city("cyberpunk");
+};

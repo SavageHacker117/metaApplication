@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head><title>NFT Creator/Marketplace</title></head>
+<body style="background:#222;color:#fff;font-family:monospace;">
+  <h2>NFT Creator (optional!)</h2>
+  <label>Asset Path <input id="assetPath" value="asset.glb"></label><br>
+  <label>Meta <input id="meta" value="RUBY 3D Model"></label><br>
+  <label>Open Source? <input type="checkbox" id="os" checked></label><br>
+  <button id="mintBtn">Mint NFT</button><br><br>
+  <h3>Marketplace</h3>
+  <label>NFT ID <input id="nftId"></label>
+  <label>Price <input id="price" value="1.0"></label>
+  <button id="listBtn">List for Sale</button>
+  <label>Buyer <input id="buyer"></label>
+  <button id="sellBtn">Sell</button>
+  <button id="statusBtn">Marketplace Status</button>
+  <div id="nftLog"></div>
+  <script src="nft_panel.js"></script>
+</body>
+</html>

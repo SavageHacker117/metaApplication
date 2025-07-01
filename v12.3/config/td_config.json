@@ -1,0 +1,39 @@
+
+
+{
+    "llm": {
+        "model_name": "gpt-3.5-turbo",
+        "api_key": "YOUR_OPENAI_API_KEY_HERE"
+    },
+    "rl": {
+        "algorithm": "PPO",
+        "learning_rate": 0.0001,
+        "gamma": 0.99,
+        "num_episodes": 10
+    },
+    "system": {
+        "environment_name": "tower_defense",
+        "log_level": "INFO",
+        "output_dir": "./td_outputs",
+        "debug_mode": false
+    },
+    "game_specific": {
+        "grid_size": [12, 12],
+        "initial_cash": 250,
+        "initial_lives": 25,
+        "tower_types": {
+            "basic": {"cost": 50, "range": 2, "damage": 10},
+            "archer": {"cost": 75, "range": 3, "damage": 15},
+            "cannon": {"cost": 120, "range": 2, "damage": 30},
+            "slow": {"cost": 60, "range": 2, "damage": 5, "effect": "slow"}
+        },
+        "enemy_types": {
+            "grunt": {"health": 50, "speed": 1},
+            "fast": {"health": 30, "speed": 2},
+            "tank": {"health": 150, "speed": 0.5}
+        },
+        "max_waves": 15
+    }
+}
+
+

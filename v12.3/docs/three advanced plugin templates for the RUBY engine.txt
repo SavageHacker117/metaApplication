@@ -1,0 +1,264 @@
+A. 4D Mesh Generator Plugin (Python)
+plugins/mesh4d_generator/plugin.json
+
+json
+Copy
+Edit
+{
+  "name": "mesh4d_generator",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "mesh4d.py",
+  "description": "Procedural 4D (tesseract/hypercube) mesh generator and timeline animator.",
+  "type": "generator",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["generate_mesh4d", "animate_mesh4d"],
+  "ui": ["mesh4d_panel.html", "mesh4d_panel.js"]
+}
+plugins/mesh4d_generator/mesh4d.py
+
+python
+Copy
+Edit
+import numpy as np
+
+def generate_tesseract_vertices(size=1.0):
+    vertices = []
+    for i in range(16):
+        vertices.append([
+            (1 if i & 1 else -1) * size,
+            (1 if i & 2 else -1) * size,
+            (1 if i & 4 else -1) * size,
+            (1 if i & 8 else -1) * size,
+        ])
+    return np.array(vertices)
+
+def project_4d_to_3d(vertices4d, perspective=3.0):
+    result = []
+    for v in vertices4d:
+        w = perspective / (perspective - v[3])
+        result.append([v[0]*w, v[1]*w, v[2]*w])
+    return np.array(result)
+
+def generate_mesh4d(engine, size=1.0):
+    verts4d = generate_tesseract_vertices(size)
+    verts3d = project_4d_to_3d(verts4d)
+    mesh = engine.renderer.create_mesh(vertices=verts3d.tolist(), type='tesseract')
+    print("[RUBY] Generated 4D tesseract mesh")
+    return mesh
+
+def animate_mesh4d(engine, rotation_plane=(0,3), steps=60):
+    verts4d = generate_tesseract_vertices()
+    for step in range(steps):
+        theta = step * (np.pi * 2 / steps)
+        rot_verts = []
+        for v in verts4d:
+            v_new = v.copy()
+            a, b = rotation_plane
+            c, s = np.cos(theta), np.sin(theta)
+            va, vb = v[a], v[b]
+            v_new[a] = va * c - vb * s
+            v_new[b] = va * s + vb * c
+            rot_verts.append(v_new)
+        verts3d = project_4d_to_3d(np.array(rot_verts))
+        engine.renderer.update_mesh('tesseract', verts3d.tolist())
+        engine.sleep(0.033)
+    print("[RUBY] Animated 4D mesh in plane", rotation_plane)
+
+def register(pluginAPI):
+    pluginAPI.provide("generate_mesh4d", generate_mesh4d)
+    pluginAPI.provide("animate_mesh4d", animate_mesh4d)
+    print("[RUBY] mesh4d_generator registered.")
+plugins/mesh4d_generator/mesh4d_panel.html
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+    <title>4D Mesh Generator</title>
+    <style>
+        body { background:#222; color:#fff; font-family:monospace; }
+        #genBtn { margin:10px 0; }
+    </style>
+</head>
+<body>
+    <h2>4D Mesh Generator</h2>
+    <label>Size <input type="number" id="size" value="1" step="0.1"></label>
+    <button id="genBtn">Generate Tesseract</button>
+    <button id="aniBtn">Animate 4D Rotation</button>
+    <script src="mesh4d_panel.js"></script>
+</body>
+</html>
+plugins/mesh4d_generator/mesh4d_panel.js
+
+javascript
+Copy
+Edit
+document.getElementById('genBtn').onclick = function() {
+    let size = parseFloat(document.getElementById('size').value);
+    if(window.rubyEngine) window.rubyEngine.plugins.mesh4d_generator.generate_mesh4d(size);
+};
+document.getElementById('aniBtn').onclick = function() {
+    if(window.rubyEngine) window.rubyEngine.plugins.mesh4d_generator.animate_mesh4d();
+};
+B. AI Style Mutation Plugin (Python, JS, UI)
+plugins/ai_style_mutation/plugin.json
+
+json
+Copy
+Edit
+{
+  "name": "ai_style_mutation",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "style_mutator.py",
+  "description": "AI-driven material and world style mutation plugin using LLM prompts.",
+  "type": "ai+style",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["mutate_style", "preview_style"],
+  "ui": ["style_panel.html", "style_panel.js"]
+}
+plugins/ai_style_mutation/style_mutator.py
+
+python
+Copy
+Edit
+def mutate_style(engine, target="scene", style_prompt="cyberpunk city at night"):
+    # Example: Call LLM or Diffusion API to get new material parameters
+    # For this template, just print and simulate a change
+    print(f"[RUBY] AI style mutation for {target} -> '{style_prompt}'")
+    # In real use, call: engine.llm.apply_style(target, style_prompt)
+    # Update engine renderer/materials as needed
+    engine.renderer.apply_fake_style(target, style_prompt)
+    return True
+
+def preview_style(engine, target="scene", style_prompt="cyberpunk city at night"):
+    # Simulate a preview—actual implementation would show a UI mock or temp change
+    print(f"[RUBY] Previewing style: {style_prompt} on {target}")
+    return True
+
+def register(pluginAPI):
+    pluginAPI.provide("mutate_style", mutate_style)
+    pluginAPI.provide("preview_style", preview_style)
+    print("[RUBY] ai_style_mutation registered.")
+plugins/ai_style_mutation/style_panel.html
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Style Mutation</title>
+    <style>
+        body { background:#191970; color:#fff; font-family:sans-serif;}
+        #mutBtn { background:#6ff; color:#191970; border-radius:10px; margin-top:10px;}
+    </style>
+</head>
+<body>
+    <h2>AI Style Mutation</h2>
+    <input type="text" id="stylePrompt" placeholder="e.g. cyberpunk city at night" size="40">
+    <button id="mutBtn">Mutate Style</button>
+    <button id="prevBtn">Preview Style</button>
+    <script src="style_panel.js"></script>
+</body>
+</html>
+plugins/ai_style_mutation/style_panel.js
+
+javascript
+Copy
+Edit
+document.getElementById('mutBtn').onclick = function() {
+    let prompt = document.getElementById('stylePrompt').value;
+    if(window.rubyEngine) window.rubyEngine.plugins.ai_style_mutation.mutate_style("scene", prompt);
+};
+document.getElementById('prevBtn').onclick = function() {
+    let prompt = document.getElementById('stylePrompt').value;
+    if(window.rubyEngine) window.rubyEngine.plugins.ai_style_mutation.preview_style("scene", prompt);
+};
+C. In-World UI Menu Plugin (JavaScript)
+plugins/inworld_menu/plugin.json
+
+json
+Copy
+Edit
+{
+  "name": "inworld_menu",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "menu.js",
+  "description": "Minimalist in-world context menu for prompt injection, plugin triggers, and AI suggestions.",
+  "type": "ui",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["openMenu"],
+  "ui": ["menu.html", "menu.js"]
+}
+plugins/inworld_menu/menu.js
+
+javascript
+Copy
+Edit
+// RUBY In-World Context Menu
+
+export function openMenu(engine) {
+    if(document.getElementById('ruby-menu')) return; // Only one menu
+    const menu = document.createElement('div');
+    menu.id = 'ruby-menu';
+    menu.style = "position:fixed;bottom:40px;right:40px;background:#242426;color:#fff;padding:24px 30px;border-radius:24px;z-index:99999;box-shadow:0 4px 32px #0008";
+    menu.innerHTML = `
+      <h4>RUBY In-World Menu</h4>
+      <input id="ruby-menu-prompt" type="text" style="width:240px" placeholder="Type a world prompt...">
+      <button id="ruby-menu-inject">Inject</button>
+      <hr/>
+      <button id="ruby-menu-style">AI Style Mutation</button>
+      <button id="ruby-menu-mesh4d">Generate 4D Mesh</button>
+      <button id="ruby-menu-close">Close</button>
+      <div id="ruby-menu-log"></div>
+    `;
+    document.body.appendChild(menu);
+
+    document.getElementById('ruby-menu-inject').onclick = function() {
+        let p = document.getElementById('ruby-menu-prompt').value;
+        if(window.rubyEngine) window.rubyEngine.injectPrompt(p);
+        document.getElementById('ruby-menu-log').innerHTML += "<div>Injected: "+p+"</div>";
+    };
+    document.getElementById('ruby-menu-style').onclick = function() {
+        if(window.rubyEngine) window.rubyEngine.plugins.ai_style_mutation.mutate_style("scene", "AI Style Menu Demo");
+    };
+    document.getElementById('ruby-menu-mesh4d').onclick = function() {
+        if(window.rubyEngine) window.rubyEngine.plugins.mesh4d_generator.generate_mesh4d();
+    };
+    document.getElementById('ruby-menu-close').onclick = function() {
+        document.body.removeChild(menu);
+    };
+}
+
+export function register(pluginAPI) {
+    pluginAPI.provide("openMenu", openMenu);
+    console.log("[RUBY] inworld_menu plugin registered.");
+}
+plugins/inworld_menu/menu.html
+
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RUBY In-World Menu</title>
+    <style>
+        body { background: #202030; color: #fff; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <script src="menu.js"></script>
+</body>
+</html>
+How To Use/Connect:
+Drop each folder (mesh4d_generator/, ai_style_mutation/, inworld_menu/) into your /plugins/.
+
+Engine will auto-load via manifest.
+
+Each exposes API for UI, world, or AI logic—ready for further extension.

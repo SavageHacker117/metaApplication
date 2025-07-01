@@ -1,0 +1,14 @@
+{
+  "name": "threejs_tower_defense",
+  "version": "1.0.0",
+  "author": "DARK MATTER Team",
+  "entry": "tower_defense.js",
+  "description": "Three.js-based tower defense game plugin with AI-powered enemies and strategic gameplay",
+  "type": "game",
+  "compatibleWith": ["DARKMATTER>=8.2.0"],
+  "exposes": ["initTowerDefense", "spawnTower", "spawnEnemy", "startWave", "pauseGame", "resetGame"],
+  "dependencies": ["three.js", "tween.js"],
+  "ui": ["tower_defense_ui.html", "tower_defense_ui.js"],
+  "assets": ["models/", "textures/", "sounds/"]
+}
+

@@ -1,0 +1,234 @@
+Here’s a turnkey set of plugin templates and sample “full-blown” code files for RUBY (V8), including:
+
+A universal Python plugin
+
+A universal JavaScript plugin
+
+A plugin manifest (plugin.json)
+
+Boilerplate for adapters (for V7 Python or JS add-ons)
+
+Plug-in registration code (for the engine)
+
+A UI plugin sample (HTML + JS)
+
+Full documentation for each
+
+1. plugins/sample_python_plugin/plugin.json
+json
+Copy
+Edit
+{
+  "name": "sample_python_plugin",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "main.py",
+  "description": "A sample RUBY Python plugin: adds a procedural RL-LLM world event.",
+  "type": "event",
+  "dependencies": [],
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["inject_event", "list_events"],
+  "ui": []
+}
+2. plugins/sample_python_plugin/main.py
+python
+Copy
+Edit
+# RUBY Sample Python Plugin: Event Injector
+
+def inject_event(engine, event_type="supernova", location=(0,0,0), timestamp=None):
+    event = {
+        "type": event_type,
+        "location": location,
+        "timestamp": timestamp,
+        "params": {}
+    }
+    engine.timeline.append_event(event)
+    print(f"[RUBY] Injected event: {event_type} at {location} @ {timestamp}")
+    return event
+
+def list_events(engine):
+    return engine.timeline.events
+
+def register(pluginAPI):
+    pluginAPI.provide("inject_event", inject_event)
+    pluginAPI.provide("list_events", list_events)
+    print("[RUBY] sample_python_plugin registered.")
+3. plugins/sample_js_plugin/plugin.json
+json
+Copy
+Edit
+{
+  "name": "sample_js_plugin",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "main.js",
+  "description": "A sample RUBY JavaScript plugin: UI + world manipulation.",
+  "type": "ui+logic",
+  "dependencies": [],
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["openDevPanel"],
+  "ui": ["dev_panel.html", "dev_panel.js"]
+}
+4. plugins/sample_js_plugin/main.js
+javascript
+Copy
+Edit
+// RUBY Sample JS Plugin: Adds a Dev Panel to UI
+
+export function openDevPanel(engine) {
+    // Dynamically loads UI panel
+    const panel = document.createElement('div');
+    panel.id = 'ruby-dev-panel';
+    panel.style = "position:fixed;top:80px;right:40px;background:#111;color:#eee;padding:16px;border-radius:16px;z-index:9999";
+    panel.innerHTML = `<h3>RUBY Dev Panel</h3>
+        <button id="injectEventBtn">Inject Event</button>
+        <div id="eventLog"></div>`;
+    document.body.appendChild(panel);
+
+    document.getElementById('injectEventBtn').onclick = () => {
+        const event = { type: "black_hole", timestamp: Date.now() };
+        engine.injectEvent(event); // engine should have this method
+        document.getElementById('eventLog').innerHTML += `<div>Injected: black_hole</div>`;
+    };
+    console.log("[RUBY] JS Plugin Dev Panel loaded.");
+}
+
+export function register(pluginAPI) {
+    pluginAPI.provide("openDevPanel", openDevPanel);
+    console.log("[RUBY] sample_js_plugin registered.");
+}
+5. plugins/sample_js_plugin/dev_panel.html
+html
+Copy
+Edit
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RUBY Dev Panel</title>
+    <style>
+        body { background: #181818; color: #eee; font-family: monospace; }
+        .ruby-btn { background: #e00; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h2>RUBY Dev Panel</h2>
+    <button class="ruby-btn" onclick="injectEvent()">Inject Test Event</button>
+    <div id="ruby-panel-log"></div>
+    <script src="dev_panel.js"></script>
+</body>
+</html>
+6. plugins/sample_js_plugin/dev_panel.js
+javascript
+Copy
+Edit
+function injectEvent() {
+    // Simulate event injection
+    const log = document.getElementById('ruby-panel-log');
+    log.innerHTML += "<div>Injected test event at " + new Date().toLocaleTimeString() + "</div>";
+    // In real plugin, would call engine API: window.rubyEngine.injectEvent({...})
+}
+7. plugins/v7_addons_adapter/plugin.json
+json
+Copy
+Edit
+{
+  "name": "v7_addons_adapter",
+  "version": "1.0.0",
+  "entry": "adapter.py",
+  "description": "Adapter for legacy V7 Python add-ons to run as RUBY plugins.",
+  "type": "adapter",
+  "dependencies": [],
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["load_v7_addon"],
+  "ui": []
+}
+8. plugins/v7_addons_adapter/adapter.py
+python
+Copy
+Edit
+# RUBY V8 Plugin Adapter for V7 Add-Ons
+
+import importlib
+
+def load_v7_addon(addon_name, entry_point):
+    try:
+        addon_module = importlib.import_module(f"legacy_v7.{addon_name}.{entry_point}")
+        if hasattr(addon_module, "run"):
+            return addon_module.run()
+        else:
+            print(f"[RUBY] No run() in {addon_name}, skipping.")
+    except Exception as e:
+        print(f"[RUBY] Failed to load V7 addon {addon_name}: {e}")
+
+def register(pluginAPI):
+    pluginAPI.provide("load_v7_addon", load_v7_addon)
+    print("[RUBY] v7_addons_adapter registered.")
+9. ruby_engine/plugin_loader.py
+python
+Copy
+Edit
+# RUBY Core: Plugin Loader
+
+import importlib
+import json
+import os
+
+def load_plugins(plugin_dir="plugins"):
+    plugins = {}
+    for plugin in os.listdir(plugin_dir):
+        manifest_path = os.path.join(plugin_dir, plugin, "plugin.json")
+        if os.path.isfile(manifest_path):
+            with open(manifest_path) as f:
+                manifest = json.load(f)
+            entry = manifest.get("entry")
+            if entry and entry.endswith(".py"):
+                mod_path = f"plugins.{plugin}.{entry[:-3]}"
+                try:
+                    mod = importlib.import_module(mod_path)
+                    if hasattr(mod, "register"):
+                        mod.register(PluginAPI())
+                        plugins[plugin] = mod
+                        print(f"[RUBY] Plugin {plugin} loaded.")
+                except Exception as e:
+                    print(f"[RUBY] Failed to load plugin {plugin}: {e}")
+            # JS plugins/UI handled by web server/engine
+    return plugins
+
+class PluginAPI:
+    def provide(self, name, func):
+        # Register a callable to engine/plugin bus
+        setattr(self, name, func)
+        print(f"[RUBY] Provided: {name}")
+
+# To use:
+# plugins = load_plugins()
+10. /plugins/README.md
+markdown
+Copy
+Edit
+# RUBY Plugin System
+
+## Structure
+
+Each plugin is a folder with:
+- `plugin.json`: manifest file
+- `main.py` or `main.js`: entry point
+- UI files as needed (e.g., `dev_panel.html`)
+- Docs, tests, or adapters as needed
+
+## How to Register
+
+Engine will auto-discover and register all plugins with a valid manifest and entry point.
+
+## Example
+
+See `sample_python_plugin/` and `sample_js_plugin/` for templates.
+How to Use/Add Plugins in RUBY:
+Copy a template folder (e.g., sample_python_plugin/) into /plugins/.
+
+Update the manifest and code to match your new feature.
+
+All plugins auto-register on engine start.
+
+To wrap a V7 add-on, copy it to /plugins/v7_addons_adapter/, fill out the adapter and manifest.

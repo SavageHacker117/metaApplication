@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DARK MATTER - Three.js Plugin Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .control-panel {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 15px;
+            pointer-events: auto;
+            min-width: 200px;
+        }
+        
+        #scene-controls {
+            top: 20px;
+            left: 20px;
+        }
+        
+        #world-controls {
+            top: 20px;
+            right: 20px;
+        }
+        
+        #game-controls {
+            bottom: 20px;
+            left: 20px;
+        }
+        
+        #info-panel {
+            bottom: 20px;
+            right: 20px;
+            max-width: 300px;
+        }
+        
+        .panel-title {
+            color: #00ff00;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .control-button {
+            background: #001100;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px 12px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 11px;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        
+        .control-button:hover {
+            background: #00ff00;
+            color: #000;
+        }
+        
+        .control-button:active {
+            transform: scale(0.95);
+        }
+        
+        .control-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .control-group {
+            margin: 10px 0;
+        }
+        
+        .control-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        
+        select, input[type="range"] {
+            background: #001100;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 4px;
+            width: 100%;
+            font-family: inherit;
+            font-size: 11px;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2000;
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            color: #00ff00;
+            margin-bottom: 20px;
+        }
+        
+        .loading-bar {
+            width: 200px;
+            height: 4px;
+            background: #003300;
+            border: 1px solid #00ff00;
+            overflow: hidden;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #88ff88);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .status-text {
+            font-size: 10px;
+            color: #666;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <!-- Loading screen -->
+        <div id="loading">
+            <div class="loading-text">INITIALIZING DARK MATTER</div>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loading-progress"></div>
+            </div>
+            <div class="status-text" id="loading-status">Loading Three.js...</div>
+        </div>
+        
+        <!-- UI Overlay -->
+        <div id="ui-overlay" class="hidden">
+            <!-- Scene Controls -->
+            <div id="scene-controls" class="control-panel">
+                <div class="panel-title">Scene Manager</div>
+                <div class="control-group">
+                    <div class="control-label">Camera Mode</div>
+                    <select id="camera-mode">
+                        <option value="orbit">Orbit</option>
+                        <option value="fly">Fly</option>
+                        <option value="first-person">First Person</option>
+                        <option value="cinematic">Cinematic</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Lighting</div>
+                    <select id="lighting-preset">
+                        <option value="studio">Studio</option>
+                        <option value="outdoor">Outdoor</option>
+                        <option value="indoor">Indoor</option>
+                        <option value="dramatic">Dramatic</option>
+                        <option value="night">Night</option>
+                    </select>
+                </div>
+                <button class="control-button" onclick="optimizeScene()">Optimize Scene</button>
+            </div>
+            
+            <!-- World Controls -->
+            <div id="world-controls" class="control-panel">
+                <div class="panel-title">World Generator</div>
+                <div class="control-group">
+                    <div class="control-label">Biome</div>
+                    <select id="biome-type">
+                        <option value="mixed">Mixed</option>
+                        <option value="desert">Desert</option>
+                        <option value="arctic">Arctic</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Vegetation Density</div>
+                    <input type="range" id="vegetation-density" min="0" max="0.05" step="0.005" value="0.02">
+                </div>
+                <button class="control-button" onclick="generateNewWorld()">Generate World</button>
+                <button class="control-button" onclick="addVegetation()">Add Vegetation</button>
+                <div class="control-group">
+                    <div class="control-label">Weather</div>
+                    <select id="weather-type">
+                        <option value="clear">Clear</option>
+                        <option value="rain">Rain</option>
+                        <option value="snow">Snow</option>
+                        <option value="fog">Fog</option>
+                    </select>
+                </div>
+                <button class="control-button" onclick="changeWeather()">Apply Weather</button>
+                <div class="control-group">
+                    <div class="control-label">Time of Day</div>
+                    <input type="range" id="time-of-day" min="0" max="1" step="0.1" value="0.5">
+                </div>
+            </div>
+            
+            <!-- Game Controls -->
+            <div id="game-controls" class="control-panel">
+                <div class="panel-title">Tower Defense</div>
+                <button class="control-button" id="init-game-btn" onclick="initTowerDefense()">Initialize Game</button>
+                <button class="control-button" id="start-wave-btn" onclick="startWave()" disabled>Start Wave</button>
+                <button class="control-button" id="pause-game-btn" onclick="pauseGame()" disabled>Pause</button>
+                <button class="control-button" onclick="spawnTestEnemy()">Spawn Enemy</button>
+                <button class="control-button" onclick="resetTowerDefense()">Reset Game</button>
+                <div class="status-text" id="game-status">Game not initialized</div>
+            </div>
+            
+            <!-- Info Panel -->
+            <div id="info-panel" class="control-panel">
+                <div class="panel-title">System Info</div>
+                <div class="status-text">
+                    <div>FPS: <span id="fps">--</span></div>
+                    <div>Objects: <span id="object-count">--</span></div>
+                    <div>Triangles: <span id="triangle-count">--</span></div>
+                    <div>Memory: <span id="memory-usage">--</span></div>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">Instructions</div>
+                    <div class="status-text">
+                        • Mouse: Orbit camera<br>
+                        • Click terrain: Place tower<br>
+                        • WASD: Fly mode movement<br>
+                        • Space: Pause game<br>
+                        • Enter: Start wave
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // Mock DARK MATTER engine for demo purposes
+        class MockDarkMatterEngine {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.plugins = {};
+                this.events = new EventTarget();
+            }
+            
+            emit(event, data) {
+                this.events.dispatchEvent(new CustomEvent(event, { detail: data }));
+            }
+            
+            on(event, callback) {
+                this.events.addEventListener(event, callback);
+            }
+        }
+        
+        // Global variables
+        let engine = new MockDarkMatterEngine();
+        let sceneManager = null;
+        let towerDefenseGame = null;
+        let currentSeed = Math.floor(Math.random() * 10000);
+        let stats = { fps: 0, objects: 0, triangles: 0, memory: 0 };
+        
+        // Loading progress
+        let loadingProgress = 0;
+        const loadingSteps = [
+            'Loading Three.js...',
+            'Initializing Scene Manager...',
+            'Loading Procedural World Generator...',
+            'Setting up Tower Defense...',
+            'Optimizing Performance...',
+            'Ready!'
+        ];
+        
+        function updateLoadingProgress(step) {
+            loadingProgress = Math.min(loadingProgress + 1, loadingSteps.length);
+            const progress = (loadingProgress / loadingSteps.length) * 100;
+            
+            document.getElementById('loading-progress').style.width = progress + '%';
+            document.getElementById('loading-status').textContent = loadingSteps[loadingProgress - 1] || 'Complete';
+            
+            if (loadingProgress >= loadingSteps.length) {
+                setTimeout(() => {
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('ui-overlay').classList.remove('hidden');
+                }, 500);
+            }
+        }
+        
+        // Initialize demo
+        async function initDemo() {
+            updateLoadingProgress();
+            
+            // Initialize Scene Manager
+            await new Promise(resolve => setTimeout(resolve, 500));
+            updateLoadingProgress();
+            
+            const container = document.getElementById('container');
+            
+            // Mock scene manager initialization
+            sceneManager = {
+                scene: new THREE.Scene(),
+                camera: new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000),
+                renderer: new THREE.WebGLRenderer({ antialias: true })
+            };
+            
+            sceneManager.renderer.setSize(window.innerWidth, window.innerHeight);
+            sceneManager.renderer.shadowMap.enabled = true;
+            sceneManager.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(sceneManager.renderer.domElement);
+            
+            sceneManager.camera.position.set(10, 10, 10);
+            sceneManager.camera.lookAt(0, 0, 0);
+            
+            // Add basic lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+            sceneManager.scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 10, 5);
+            directionalLight.castShadow = true;
+            sceneManager.scene.add(directionalLight);
+            
+            // Add orbit controls
+            const controls = new THREE.OrbitControls(sceneManager.camera, sceneManager.renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            engine.scene = sceneManager.scene;
+            engine.camera = sceneManager.camera;
+            engine.renderer = sceneManager.renderer;
+            engine.controls = controls;
+            
+            updateLoadingProgress();
+            
+            // Generate initial world
+            await new Promise(resolve => setTimeout(resolve, 500));
+            generateInitialWorld();
+            updateLoadingProgress();
+            
+            // Setup tower defense placeholder
+            await new Promise(resolve => setTimeout(resolve, 300));
+            updateLoadingProgress();
+            
+            // Start render loop
+            animate();
+            updateLoadingProgress();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Start performance monitoring
+            setInterval(updateStats, 1000);
+        }
+        
+        function generateInitialWorld() {
+            // Create simple terrain
+            const geometry = new THREE.PlaneGeometry(50, 50, 32, 32);
+            const vertices = geometry.attributes.position.array;
+            
+            // Add height variation
+            for (let i = 0; i < vertices.length; i += 3) {
+                vertices[i + 2] = Math.random() * 3 - 1.5;
+            }
+            
+            geometry.attributes.position.needsUpdate = true;
+            geometry.computeVertexNormals();
+            
+            const material = new THREE.MeshLambertMaterial({ color: 0x4a7c59 });
+            const terrain = new THREE.Mesh(geometry, material);
+            terrain.rotation.x = -Math.PI / 2;
+            terrain.receiveShadow = true;
+            
+            sceneManager.scene.add(terrain);
+            
+            // Add some basic objects
+            for (let i = 0; i < 10; i++) {
+                const geometry = new THREE.BoxGeometry(1, 2, 1);
+                const material = new THREE.MeshLambertMaterial({ 
+                    color: new THREE.Color().setHSL(Math.random(), 0.7, 0.5) 
+                });
+                const cube = new THREE.Mesh(geometry, material);
+                
+                cube.position.set(
+                    (Math.random() - 0.5) * 40,
+                    1,
+                    (Math.random() - 0.5) * 40
+                );
+                cube.castShadow = true;
+                cube.receiveShadow = true;
+                
+                sceneManager.scene.add(cube);
+            }
+        }
+        
+        function setupEventListeners() {
+            // Camera mode change
+            document.getElementById('camera-mode').addEventListener('change', function() {
+                console.log('Camera mode changed to:', this.value);
+                // In real implementation, this would call the scene manager plugin
+            });
+            
+            // Lighting preset change
+            document.getElementById('lighting-preset').addEventListener('change', function() {
+                console.log('Lighting preset changed to:', this.value);
+                // In real implementation, this would call the scene manager plugin
+            });
+            
+            // Time of day slider
+            document.getElementById('time-of-day').addEventListener('input', function() {
+                const time = parseFloat(this.value);
+                updateTimeOfDay(time);
+            });
+            
+            // Window resize
+            window.addEventListener('resize', onWindowResize);
+            
+            // Keyboard controls
+            document.addEventListener('keydown', function(event) {
+                switch(event.code) {
+                    case 'Space':
+                        event.preventDefault();
+                        pauseGame();
+                        break;
+                    case 'Enter':
+                        event.preventDefault();
+                        startWave();
+                        break;
+                }
+            });
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (engine.controls) {
+                engine.controls.update();
+            }
+            
+            engine.renderer.render(engine.scene, engine.camera);
+            
+            // Update FPS
+            stats.fps = Math.round(1000 / (performance.now() - (stats.lastTime || performance.now())));
+            stats.lastTime = performance.now();
+        }
+        
+        function onWindowResize() {
+            engine.camera.aspect = window.innerWidth / window.innerHeight;
+            engine.camera.updateProjectionMatrix();
+            engine.renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        function updateStats() {
+            document.getElementById('fps').textContent = stats.fps || '--';
+            document.getElementById('object-count').textContent = engine.scene.children.length;
+            document.getElementById('triangle-count').textContent = engine.renderer.info.render.triangles || '--';
+            document.getElementById('memory-usage').textContent = 
+                (engine.renderer.info.memory.geometries + engine.renderer.info.memory.textures) + ' MB';
+        }
+        
+        // Control functions (these would call actual plugin methods in real implementation)
+        function generateNewWorld() {
+            const biome = document.getElementById('biome-type').value;
+            currentSeed = Math.floor(Math.random() * 10000);
+            console.log(`Generating ${biome} world with seed: ${currentSeed}`);
+            
+            // Clear existing terrain and regenerate
+            const terrain = engine.scene.children.find(child => 
+                child instanceof THREE.Mesh && child.geometry instanceof THREE.PlaneGeometry
+            );
+            if (terrain) {
+                engine.scene.remove(terrain);
+            }
+            
+            generateInitialWorld();
+            showNotification(`Generated ${biome} world (seed: ${currentSeed})`);
+        }
+        
+        function addVegetation() {
+            const density = parseFloat(document.getElementById('vegetation-density').value);
+            console.log(`Adding vegetation with density: ${density}`);
+            
+            // Add some simple vegetation
+            for (let i = 0; i < density * 1000; i++) {
+                const geometry = new THREE.ConeGeometry(0.5, 2, 8);
+                const material = new THREE.MeshLambertMaterial({ color: 0x228b22 });
+                const tree = new THREE.Mesh(geometry, material);
+                
+                tree.position.set(
+                    (Math.random() - 0.5) * 45,
+                    1,
+                    (Math.random() - 0.5) * 45
+                );
+                tree.castShadow = true;
+                
+                engine.scene.add(tree);
+            }
+            
+            showNotification(`Added vegetation (density: ${density})`);
+        }
+        
+        function changeWeather() {
+            const weather = document.getElementById('weather-type').value;
+            console.log(`Changing weather to: ${weather}`);
+            
+            // Simple weather effects
+            switch(weather) {
+                case 'fog':
+                    engine.scene.fog = new THREE.Fog(0xcccccc, 10, 50);
+                    break;
+                case 'clear':
+                    engine.scene.fog = null;
+                    break;
+                default:
+                    console.log(`Weather effect '${weather}' not implemented in demo`);
+            }
+            
+            showNotification(`Weather changed to: ${weather}`);
+        }
+        
+        function updateTimeOfDay(time) {
+            // Simple time of day lighting
+            const lights = engine.scene.children.filter(child => child instanceof THREE.DirectionalLight);
+            lights.forEach(light => {
+                if (time < 0.2 || time > 0.8) {
+                    // Night
+                    light.color.setHex(0x404080);
+                    light.intensity = 0.2;
+                } else if (time < 0.3 || time > 0.7) {
+                    // Dawn/Dusk
+                    light.color.setHex(0xff8844);
+                    light.intensity = 0.5;
+                } else {
+                    // Day
+                    light.color.setHex(0xffffff);
+                    light.intensity = 0.8;
+                }
+            });
+        }
+        
+        function optimizeScene() {
+            console.log('Optimizing scene...');
+            showNotification('Scene optimized');
+        }
+        
+        function initTowerDefense() {
+            console.log('Initializing tower defense...');
+            document.getElementById('init-game-btn').disabled = true;
+            document.getElementById('start-wave-btn').disabled = false;
+            document.getElementById('pause-game-btn').disabled = false;
+            document.getElementById('game-status').textContent = 'Game initialized - Ready to start';
+            showNotification('Tower Defense initialized');
+        }
+        
+        function startWave() {
+            console.log('Starting wave...');
+            document.getElementById('game-status').textContent = 'Wave in progress';
+            showNotification('Wave started!');
+        }
+        
+        function pauseGame() {
+            console.log('Pausing/resuming game...');
+            const btn = document.getElementById('pause-game-btn');
+            btn.textContent = btn.textContent === 'Pause' ? 'Resume' : 'Pause';
+            showNotification('Game ' + (btn.textContent === 'Resume' ? 'paused' : 'resumed'));
+        }
+        
+        function spawnTestEnemy() {
+            console.log('Spawning test enemy...');
+            
+            // Add a simple moving cube as enemy
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+            const enemy = new THREE.Mesh(geometry, material);
+            
+            enemy.position.set(-20, 1, 0);
+            enemy.castShadow = true;
+            engine.scene.add(enemy);
+            
+            // Simple movement animation
+            let pos = -20;
+            const moveEnemy = () => {
+                pos += 0.1;
+                enemy.position.x = pos;
+                if (pos < 20) {
+                    requestAnimationFrame(moveEnemy);
+                } else {
+                    engine.scene.remove(enemy);
+                }
+            };
+            moveEnemy();
+            
+            showNotification('Test enemy spawned');
+        }
+        
+        function resetTowerDefense() {
+            console.log('Resetting tower defense...');
+            document.getElementById('init-game-btn').disabled = false;
+            document.getElementById('start-wave-btn').disabled = true;
+            document.getElementById('pause-game-btn').disabled = true;
+            document.getElementById('pause-game-btn').textContent = 'Pause';
+            document.getElementById('game-status').textContent = 'Game not initialized';
+            showNotification('Game reset');
+        }
+        
+        function showNotification(message) {
+            // Simple notification system
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 255, 0, 0.9);
+                color: black;
+                padding: 10px 20px;
+                border-radius: 4px;
+                font-weight: bold;
+                z-index: 3000;
+                pointer-events: none;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 2000);
+        }
+        
+        // Start the demo
+        window.addEventListener('load', initDemo);
+    </script>
+</body>
+</html>
+

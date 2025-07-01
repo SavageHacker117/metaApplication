@@ -1,0 +1,14 @@
+{
+  "name": "threejs_procedural_world",
+  "version": "1.0.0",
+  "author": "DARK MATTER Team",
+  "entry": "procedural_world.js",
+  "description": "Three.js procedural world generation plugin with terrain, vegetation, and environmental effects",
+  "type": "generator",
+  "compatibleWith": ["DARKMATTER>=8.2.0"],
+  "exposes": ["generateTerrain", "generateVegetation", "generateWeather", "morphTerrain", "setTimeOfDay"],
+  "dependencies": ["three.js", "noise.js"],
+  "ui": ["world_generator_ui.html", "world_generator_ui.js"],
+  "assets": ["textures/", "models/", "shaders/"]
+}
+

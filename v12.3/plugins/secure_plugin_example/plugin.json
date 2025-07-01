@@ -1,0 +1,11 @@
+{
+  "name": "secure_plugin_example",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "secure.py",
+  "description": "Secure plugin demo: checks digital signature, hash, and manifest before activation.",
+  "type": "security",
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["check_signature", "is_trusted"],
+  "ui": []
+}

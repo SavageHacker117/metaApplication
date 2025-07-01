@@ -1,0 +1,51 @@
+training:
+  max_episodes: 1000
+  max_steps_per_episode: 500
+  batch_size: 16
+  learning_rate: 0.0003
+  gamma: 0.99
+  num_parallel_envs: 4
+  use_vectorized_env: true
+  use_mixed_precision: true
+  gradient_clipping: 1.0
+  checkpoint_frequency: 10
+  auto_resume: true
+  checkpoint_dir: "checkpoints_dev"
+
+environment:
+  grid_size: [8, 8]
+  max_towers: 10
+  max_enemies: 20
+  enemy_spawn_rate: 0.1
+  tower_types: ["basic", "cannon", "archer"]
+
+render:
+  width: 512
+  height: 512
+  use_headless_gpu: true
+  enable_context_pool: true
+  pool_size: 2
+  render_timeout: 15.0
+  enable_mock_renderer: true
+  mock_render_probability: 0.8
+
+reward:
+  gameplay_weight: 0.4
+  visual_quality_weight: 0.2
+  code_quality_weight: 0.2
+  performance_weight: 0.2
+  enable_diversity_bonus: true
+  diversity_threshold: 0.8
+  penalty_for_repetition: -0.1
+
+logging:
+  level: "DEBUG"
+  log_dir: "logs_dev"
+  enable_tensorboard: true
+  enable_wandb: false
+  log_frequency: 5
+  save_logs: true
+
+config_version: "3.0.0"
+environment_name: "development"
+

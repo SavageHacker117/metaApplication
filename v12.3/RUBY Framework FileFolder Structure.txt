@@ -1,0 +1,124 @@
+Here is the proposed RUBY file and folder structure, along with code stubs and new .mds you need for instant upgrade and add-on support. You can copy and paste this tree into your README, or use it as your build guide:
+
+RUBY Framework: File/Folder Structure
+python
+Copy
+Edit
+/RUBY/
+│
+├── README.md                     # Project intro & how to use RUBY
+├── RUBY_FRAMEWORK.md             # Official manifesto, plug-in rules, identity
+├── UPGRADE_TO_RUBY.md            # V7-to-RUBY migration/adapter guide
+│
+├── ruby_engine/                  # Core RL-LLM + 3D/4D logic (Python, JS, C++)
+│   ├── __init__.py
+│   ├── fabric_kernel.py
+│   ├── llm_pipeline.py
+│   ├── renderer/
+│   │   └── threejs_adapter.js
+│   └── ...etc
+│
+├── plugins/                      # All add-ons, old and new, as RUBY plugins
+│   ├── README.md
+│   ├── v7_addons_adapter/        # Legacy wrapper for V7 add-ons
+│   │   ├── plugin.json
+│   │   └── adapter.py
+│   ├── enhanced_3d_generator/
+│   │   ├── plugin.json
+│   │   ├── model_3d_generator.py
+│   │   ├── app_enhanced.js
+│   │   └── index_enhanced.html
+│   └── ... (each plugin in its own folder)
+│
+├── toolkit/                      # Scripts, config, batch tools, tests, visualizations
+│   └── ... (ported from V7/toolkit)
+│
+├── docs/
+│   ├── DOCS_INDEX.md
+│   ├── ENGINE_FABRIC_BLUEPRINT.md
+│   ├── FABRIC_OBJECT_TIMELINE.md
+│   ├── PLUGIN_EXTENSION_TEMPLATE.md
+│   ├── INWORLD_DEV_SUITE_UI.md
+│   ├── SPRINT_EXPANSION_GUIDE.md
+│   ├── AI_MANIFESTO.md
+│   ├── REALITY_WEAVING_COOKBOOK.md
+│   ├── LEGACY_RFE_COMBO_NOTES.md
+│   ├── rfe_vision_8_sprint_guide.md
+│   ├── RealisFabricEngine.MD
+│   ├── tesseract_injection_project_files.md
+│   └── ... (legacy V7 docs: changelogs, user guides, protocols, etc.)
+│
+├── examples/
+│   ├── sample_plugin/
+│   │   ├── plugin.json
+│   │   └── sample_plugin.py
+│   └── ...
+│
+├── legacy/
+│   └── ... (all original legacy code, for reference or deep debugging)
+│
+└── package.json                 # Node/JS package for engine if needed
+Example New Plugin Manifest (plugins/enhanced_3d_generator/plugin.json)
+json
+Copy
+Edit
+{
+  "name": "enhanced_3d_generator",
+  "version": "1.0.0",
+  "author": "Dev Master Savage Hacker",
+  "entry": "model_3d_generator.py",
+  "description": "3D asset/model generator ported from V7 add-on to RUBY framework.",
+  "type": "generator",
+  "dependencies": [],
+  "compatibleWith": ["RUBY>=8.0.0"],
+  "exposes": ["generateModel", "importModel"],
+  "ui": ["index_enhanced.html", "app_enhanced.js"]
+}
+Adapter Stub for sytnax error Add-Ons (plugins/syntax error _addons_adapter/adapter.py)
+python
+Copy
+Edit
+# RUBY Plugin Adapter for legacy Add-Ons
+import importlib
+
+def load_v7_addon(addon_name, entry_point):
+    # Dynamic import for legacy modules
+    addon_module = importlib.import_module(f"legacy .{addon_name}.{entry_point}")
+    if hasattr(addon_module, "run"):
+        return addon_module.run()
+    else:
+        print(f"No run() in {addon_name}, skipping.")
+UPGRADE_TO_RUBY.md
+markdown
+Copy
+Edit
+# How to Upgrade V7 Code & Add-ons to RUBY 
+
+1. Place all legacy code and add-ons into `/legacy/` for reference.
+2. For every V7 add-on, create a plugin directory in `/plugins/`:
+   - Add a `plugin.json` manifest (see example).
+   - Port the main code (`.py`, `.js`, `.html`) to the plugin folder.
+   - Add any legacy data or configs as needed.
+   - Write an adapter (`adapter.py` or `adapter.js`) if needed.
+3. Register new plugins in the main engine or via the `/toolkit/`.
+4. Update any hardcoded references from V7 to use the RUBY plug-in system APIs.
+5. Use the docs in `/docs/` to extend or customize as you go.
+6. Remove "manus" as agent/author from docs, credits, or manifests—RUBY is you and your team!
+plugins/README.md
+markdown
+Copy
+Edit
+# RUBY Plugin System
+
+Drop any new features, add-ons, or modules here.
+Each plugin gets its own directory, manifest (`plugin.json`), and entry point.
+Legacy V7 add-ons must use the adapter in `v7_addons_adapter/`.
+See `/docs/PLUGIN_EXTENSION_TEMPLATE.md` for detailed plug-in contract/spec.
+Final Thoughts
+The V8 (RUBY) structure makes it trivial to upgrade, adapt, or even auto-load V7 modules/add-ons.
+
+All new features are plugins—no more core hacks.
+
+All add-on UI, server, and logic code sits under /plugins/, following a clear, manifest-driven spec.
+
+Every folder, script, and manifest should say “RUBY” so future users/devs know what’s up
